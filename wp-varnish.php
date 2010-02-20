@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class WPVarnish {
   function WPVarnish() {
     add_action('admin_menu', array(&$this, 'WPVarnishAdminMenu'));
-    // add_action('edit_post', array(&$this, 'sendVarnishPurge'));
+    add_action('edit_post', array(&$this, 'WPVarnishPurge'));
   }
 
   function WPVarnishAdminMenu() {
@@ -65,8 +65,8 @@ class WPVarnish {
     if (!$varnish_sock) {
       echo "$errstr ($errno)<br />\n";
     } else {
-      $out = "PURGE $varnish_rul HTTP/1.0\r\n";
-      $out .= "Host: www.example.com\r\n";
+      $out = "PURGE $varnish_url HTTP/1.0\r\n";
+      $out .= "Host: www.thedailybuzzword.com\r\n";
       $out .= "Connection: Close\r\n\r\n";
       fwrite($varnish_sock, $out);
       while (!feof($varnish_sock)) {
