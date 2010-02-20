@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 class WPVarnish {
-  function WPVarnish {
+  function WPVarnish() {
     add_action('admin_menu', array(&$this, 'WPVarnishAdminMenu'));
     // add_action('edit_post', array(&$this, 'sendVarnishPurge'));
   }
