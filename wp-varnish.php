@@ -76,6 +76,7 @@ class WPVarnish {
       fclose($varnish_sock);
     }
   }
+}
 
 $wpvarnish = & new WPVarnish();
 
