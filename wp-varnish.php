@@ -69,10 +69,6 @@ class WPVarnish {
       $out .= "Host: www.thedailybuzzword.com\r\n";
       $out .= "Connection: Close\r\n\r\n";
       fwrite($varnish_sock, $out);
-      while (!feof($varnish_sock)) {
-        echo fgets($varnish_sock, 128);
-      }
-    
       fclose($varnish_sock);
     }
   }
