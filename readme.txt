@@ -1,7 +1,7 @@
 === WordPress Varnish ===
 Contributors: pkhamre
 Donate link: http://www.supertrendy.no/wp-varnish/
-Tags: cache, performance, varnish, purge, speed
+Tags: cache, caching, performance, varnish, purge, speed
 Requires at least:
 Tested up to:
 Stable tag:
@@ -10,6 +10,8 @@ WordPress Varnish is a simple plugin that purges new and edited content.
 
 == Description ==
 
+This plugin purges your varnish cache when content is added or edited. This includes when a new post is
+added, a post is updated or when a comment is posted to your blog. 
 This is the long description. No limit, and you can use Markdown (as well as in the following sections).
 
 For backwards compatibility, if this section is missing, the full length of the short description will be used, and
@@ -47,6 +49,10 @@ This section describes how to install the plugin and get it working.
 = Does this just work? =
 
 Yes.
+
+= But how should my varnish configuration file look like? =
+
+I have provided a simple VCL that can be used as a reference.
 
 == Screenshots ==
 
