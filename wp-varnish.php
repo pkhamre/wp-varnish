@@ -61,7 +61,7 @@ class WPVarnish {
   }
 
   function WPVarnishPurge($wpv_postid) {
-    $varnish_url = get_permalink(wpv_postid);
+    $varnish_url = get_permalink($wpv_postid);
     $wpv_replace = '/^http:\/\/(www\.)?.+\.\w+\//i';
     $wpv_permalink = preg_replace($wpv_replace, "/", $varnish_url);
     $varnish_sock = fsockopen("localhost", 80, $errno, $errstr, 30);
