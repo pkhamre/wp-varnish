@@ -25,8 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class WPVarnish {
   function WPVarnish() {
+    global $post;
     add_action('admin_menu', array(&$this, 'WPVarnishAdminMenu'));
-    add_action('edit_post', array(&$this, 'WPVarnishPurge'));
+    add_action('edit_post', array(&$this, 'WPVarnishPurge'), $post->ID);
   }
 
   function WPVarnishAdminMenu() {
@@ -59,8 +60,8 @@ class WPVarnish {
   <?php
   }
 
-  function WPVarnishPurge() {
-    $varnish_url = get_permalink();
+  function WPVarnishPurge($wpv_postid) {
+    $varnish_url = get_permalink(wpv_postid);
     $wpv_replace = '/^http:\/\/(www\.)?.+\.\w+\//i';
     $wpv_permalink = preg_replace($wpv_replace, "/", $varnish_url);
     $varnish_sock = fsockopen("localhost", 80, $errno, $errstr, 30);
