@@ -61,11 +61,13 @@ class WPVarnish {
 
   function WPVarnishPurge() {
     $varnish_url = get_permalink();
+    $wpv_replace = '/^http:\/\/(www\.)?.+\.\w+\//i';
+    $wpv_permalink = preg_replace($wpv_replace, "/", $varnish_url);
     $varnish_sock = fsockopen("localhost", 80, $errno, $errstr, 30);
     if (!$varnish_sock) {
       echo "$errstr ($errno)<br />\n";
     } else {
-      $out = "PURGE $varnish_url HTTP/1.0\r\n";
+      $out = "PURGE $wpv_permalink HTTP/1.0\r\n";
       $out .= "Host: www.thedailybuzzword.com\r\n";
       $out .= "Connection: Close\r\n\r\n";
       fwrite($varnish_sock, $out);
