@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: WordPress Varnish
-Plugin URI: http://www.supertrendy.no/wp-varnish/
+Plugin URI: http://grit.me/wp-varnish/
 Version: 0.1
-Author: <a href="http://www.supertrendy.no/">Pål-Kristian Hamre</a>
+Author: <a href="http://grit.me/wp-varnish/">Pål-Kristian Hamre</a>
 Description: A plugin for purging Varnish cache when content is published or edited.
 
 Copyright 2010 Pål-Kristian Hamre  (email : post_at_pkhamre_dot_com)
@@ -27,13 +27,16 @@ class WPVarnish {
   function WPVarnish() {
     global $post;
     add_action('admin_menu', array(&$this, 'WPVarnishAdminMenu'));
-    add_action('edit_post', array(&$this, 'WPVarnishPurge'), $post->ID);
+    add_action('edit_post', array(&$this, 'WPVarnishPurgePost'), $post->ID);
+    add_action('deleted_post', array(&$this, 'WPVarnishPurgePost'), $post->ID);
+    add_action('publish_post', array(&$this, 'WPVarnishPurgePost'), $post->ID);
   }
 
   function WPVarnishAdminMenu() {
     add_options_page('WPVarnish', 'WPVarnish', 1, 'WPVarnish', array(&$this, 'WPVarnishAdmin'));
   }
 
+  // WpVarnishAdmin - Draw the administration interface.
   function WPVarnishAdmin() {
       ?>
       <div class="wrap">
@@ -60,16 +63,39 @@ class WPVarnish {
   <?php
   }
 
-  function WPVarnishPurge($wpv_postid) {
+  // WPVarnishPurgePost - Takes a post id (number) as an argument and generates
+  // the location path to the object that will be purged based on the permalink.
+  function WPVarnishPurgePost($wpv_postid) {
     $varnish_url = get_permalink($wpv_postid);
+    $wpv_wpurl = get_bloginfo('wpurl');
+    $wpv_replace_wpurl = '/^http:\/\//i';
     $wpv_replace = '/^http:\/\/(www\.)?.+\.\w+\//i';
     $wpv_permalink = preg_replace($wpv_replace, "/", $varnish_url);
+    $wpv_host = preg_replace($wpv_replace_wpurl, "", $wpv_wpurl);
     $varnish_sock = fsockopen("localhost", 80, $errno, $errstr, 30);
     if (!$varnish_sock) {
       echo "$errstr ($errno)<br />\n";
     } else {
       $out = "PURGE $wpv_permalink HTTP/1.0\r\n";
-      $out .= "Host: www.thedailybuzzword.com\r\n";
+      $out .= "Host: $wpv_host\r\n";
+      $out .= "Connection: Close\r\n\r\n";
+      fwrite($varnish_sock, $out);
+      fclose($varnish_sock);
+    }
+  }
+
+  // WPVarnishPurgeObject - Takes a location as an argument and purges this object
+  // from the varnish cache.
+  function WPVarnishPurgeObject($wpv_url) {
+    $wpv_wpurl = get_bloginfo('wpurl');
+    $wpv_replace_wpurl = '/^http:\/\//i';
+    $wpv_host = preg_replace($wpv_replace_wpurl, "", $wpv_wpurl);
+    $varnish_sock = fsockopen("localhost", 80, $errno, $errstr, 30);
+    if (!$varnish_sock) {
+      echo "$errstr ($errno)<br />\n";
+    } else {
+      $out = "PURGE $wpv_url HTTP/1.0\r\n";
+      $out .= "Host: $wpv_host\r\n";
       $out .= "Connection: Close\r\n\r\n";
       fwrite($varnish_sock, $out);
       fclose($varnish_sock);

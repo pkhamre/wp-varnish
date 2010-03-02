@@ -1,6 +1,6 @@
 === WordPress Varnish ===
 Contributors: pkhamre
-Donate link: http://www.supertrendy.no/wp-varnish/
+Donate link: http://grit.me/wp-varnish/
 Tags: cache, caching, performance, varnish, purge, speed
 Requires at least: 2.9.2
 Tested up to: 2.9.2
@@ -11,10 +11,10 @@ WordPress Varnish is a simple plugin that purges new and edited content.
 == Description ==
 
 This plugin purges your varnish cache when content is added or edited. This includes when a new post is
-added, a post is updated or when a comment is posted to your blog. 
+added, a post is updated or when a comment is posted to your blog.
 
 To keep widgets like "Recent posts", "Recent comments" and such up to date, you should consider using ESI
-and include them through a text widget for arbitrary text or HTML. 
+and include them through a text widget for arbitrary text or HTML.
 
 == Installation ==
 
