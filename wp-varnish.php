@@ -45,8 +45,15 @@ class WPVarnish {
 
     add_action('admin_menu', array(&$this, 'WPVarnishAdminMenu'));
     add_action('edit_post', array(&$this, 'WPVarnishPurgePost'), $post->ID);
-    add_action('deleted_post', array(&$this, 'WPVarnishPurgePost'), $post->ID);
-    add_action('publish_post', array(&$this, 'WPVarnishPurgePost'), $post->ID);
+    add_action('edit_post', array(&$this, 'WPVarnishPurgeCommonObjects'));
+    add_action('deleted_post', array(&$this, 'WPVarnishPurgeCommonObjects'));
+    add_action('publish_post', array(&$this, 'WPVarnishPurgeCommonObjects'));
+  }
+
+  function WPVarnishPurgeCommonObjects() {
+    $this->WPVarnishPurgeObject("/");
+    $this->WPVarnishPurgeObject("/feed/");
+    $this->WPVarnishPurgeObject("/feed/atom/");
   }
 
   function WPVarnishAdminMenu() {
