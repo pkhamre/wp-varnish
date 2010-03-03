@@ -24,8 +24,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 class WPVarnish {
+  public $wpv_addr_optname;
+  public $wpv_port_optname;
+
   function WPVarnish() {
     global $post;
+
+    $this->wpv_addr_optname = "wpvarnish_addr";
+    $this->wpv_port_optname = "wpvarnish_port";
+    $wpv_addr_optval = "127.0.0.1";
+    $wpv_port_optval = "80";
+
+    if ( (get_option($this->wpv_addr_optname) == FALSE) ) {
+      add_option($this->wpv_addr_optname, $wpv_addr_optval, '', 'yes');
+    }
+
+    if ( (get_option($this->wpv_port_optname) == FALSE) ) {
+      add_option($this->wpv_port_optname, $wpv_port_optval, '', 'yes');
+    }
+
     add_action('admin_menu', array(&$this, 'WPVarnishAdminMenu'));
     add_action('edit_post', array(&$this, 'WPVarnishPurgePost'), $post->ID);
     add_action('deleted_post', array(&$this, 'WPVarnishPurgePost'), $post->ID);
@@ -38,28 +55,36 @@ class WPVarnish {
 
   // WpVarnishAdmin - Draw the administration interface.
   function WPVarnishAdmin() {
-      ?>
-      <div class="wrap">
-        <h2>WordPress Varnish Administration</h2>
-        <h3>IP address and port configuration</h3>
-        <form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
-         <table class="form-table">
-          <tr valign="top">
-              <th scope="row">Varnish Administration Interface IP Address</th>
-              <td>
-                  <input class="regular-text" type="text" name="wpvarnish_address" value="127.0.0.1" />
-              </td>
-          </tr>
-          <tr valign="top">
-              <th scope="row">Varnish Administration Interface Port</th>
-              <td>
-                  <input class="regular-text" type="text" name="wpvarnish_port" value="6082" />
-              </td>
-          </tr>
-        </table>
-        <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="Save Changes" /></p>
-        </form>
-      </div>
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+      $wpv_addr_optval = $_POST["$this->wpv_addr_optname"];
+      $wpv_port_optval = $_POST["$this->wpv_port_optname"];
+
+      update_option($this->wpv_addr_optname, $wpv_addr_optval);
+      update_option($this->wpv_port_optname, $wpv_port_optval);
+    }
+
+    ?>
+    <div class="wrap">
+      <h2>WordPress Varnish Administration</h2>
+      <h3>IP address and port configuration</h3>
+      <form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
+       <table class="form-table">
+        <tr valign="top">
+            <th scope="row">Varnish Administration Interface IP Address</th>
+            <td>
+                <input class="regular-text" type="text" id="<?php echo $this->wpv_addr_optname; ?>" name="<?php echo $this->wpv_addr_optname; ?>" value="<?php echo get_option($this->wpv_addr_optname); ?>" />
+            </td>
+        </tr>
+        <tr valign="top">
+            <th scope="row">Varnish Administration Interface Port</th>
+            <td>
+                <input class="regular-text" type="text" id="<?php echo $this->wpv_addr_optname; ?>" name="<?php echo $this->wpv_port_optname; ?>" value="<?php echo get_option($this->wpv_port_optname); ?>" />
+            </td>
+        </tr>
+      </table>
+      <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="Save Changes" /></p>
+      </form>
+    </div>
   <?php
   }
 
@@ -67,12 +92,14 @@ class WPVarnish {
   // the location path to the object that will be purged based on the permalink.
   function WPVarnishPurgePost($wpv_postid) {
     $varnish_url = get_permalink($wpv_postid);
+    $wpv_purgeaddr = get_option($this->wpv_addr_optname);
+    $wpv_purgeport = get_option($this->wpv_port_optname);
     $wpv_wpurl = get_bloginfo('wpurl');
     $wpv_replace_wpurl = '/^http:\/\//i';
     $wpv_replace = '/^http:\/\/(www\.)?.+\.\w+\//i';
     $wpv_permalink = preg_replace($wpv_replace, "/", $varnish_url);
     $wpv_host = preg_replace($wpv_replace_wpurl, "", $wpv_wpurl);
-    $varnish_sock = fsockopen("localhost", 80, $errno, $errstr, 30);
+    $varnish_sock = fsockopen($wpv_purgeaddr, $wpv_purgeport, $errno, $errstr, 30);
     if (!$varnish_sock) {
       echo "$errstr ($errno)<br />\n";
     } else {
@@ -87,10 +114,12 @@ class WPVarnish {
   // WPVarnishPurgeObject - Takes a location as an argument and purges this object
   // from the varnish cache.
   function WPVarnishPurgeObject($wpv_url) {
+    $wpv_purgeaddr = get_option($this->wpv_addr_optname);
+    $wpv_purgeport = get_option($this->wpv_port_optname);
     $wpv_wpurl = get_bloginfo('wpurl');
     $wpv_replace_wpurl = '/^http:\/\//i';
     $wpv_host = preg_replace($wpv_replace_wpurl, "", $wpv_wpurl);
-    $varnish_sock = fsockopen("localhost", 80, $errno, $errstr, 30);
+    $varnish_sock = fsockopen($wpv_purgeaddr, $wpv_purgeport, $errno, $errstr, 30);
     if (!$varnish_sock) {
       echo "$errstr ($errno)<br />\n";
     } else {
