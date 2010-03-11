@@ -32,8 +32,8 @@ class WPVarnish {
 
     $this->wpv_addr_optname = "wpvarnish_addr";
     $this->wpv_port_optname = "wpvarnish_port";
-    $wpv_addr_optval = "127.0.0.1";
-    $wpv_port_optval = "80";
+    $wpv_addr_optval = array ("127.0.0.1");
+    $wpv_port_optval = array ("80");
 
     if ( (get_option($this->wpv_addr_optname) == FALSE) ) {
       add_option($this->wpv_addr_optname, $wpv_addr_optval, '', 'yes');
@@ -72,23 +72,34 @@ class WPVarnish {
 
     ?>
     <div class="wrap">
+      <script type="text/javascript" src="<?php echo get_option('siteurl'); ?>/wp-content/plugins/wp-varnish/wp-varnish.js"></script>
       <h2>WordPress Varnish Administration</h2>
       <h3>IP address and port configuration</h3>
       <form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
-       <table class="form-table">
+       <table class="form-table" id="form-table">
         <tr valign="top">
-            <th scope="row">Varnish Administration Interface IP Address</th>
+            <th scope="row">Varnish Adm IP Address</th>
+            <th scope="row">Varnish Adm Port</th>
+        </tr>
+        <?php
+          $addrs = get_option($this->wpv_addr_optname);
+          $ports = get_option($this->wpv_port_optname);
+          for ($i = 0; $i < count ($addrs); $i++) {
+        ?>
+        <tr valign="top">
             <td>
-                <input class="regular-text" type="text" id="<?php echo $this->wpv_addr_optname; ?>" name="<?php echo $this->wpv_addr_optname; ?>" value="<?php echo get_option($this->wpv_addr_optname); ?>" />
+                <input class="regular-text" type="text" id="<?php echo $this->wpv_addr_optname . '[]'; ?>" name="<?php echo $this->wpv_addr_optname . '[]'; ?>" value="<?php echo $addrs[$i]; ?>" />
+            </td>
+            <td>
+                <input class="regular-text" type="text" id="<?php echo $this->wpv_addr_optname . '[]'; ?>" name="<?php echo $this->wpv_port_optname . '[]'; ?>" value="<?php echo $ports[$i]; ?>" />
+            </td>
+            <td>
+                <input type="button" class="" name="<?php $i ?>" value="-" onclick="deleteRow (this.form, id)" />
             </td>
         </tr>
-        <tr valign="top">
-            <th scope="row">Varnish Administration Interface Port</th>
-            <td>
-                <input class="regular-text" type="text" id="<?php echo $this->wpv_addr_optname; ?>" name="<?php echo $this->wpv_port_optname; ?>" value="<?php echo get_option($this->wpv_port_optname); ?>" />
-            </td>
-        </tr>
+        <?php } ?>
       </table>
+      <input type="button" class="" name="wpvarnish_admin" value="+" onclick="addRow ('form-table')" />
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="Save Changes" /></p>
       </form>
     </div>
@@ -106,15 +117,18 @@ class WPVarnish {
     $wpv_replace = '/^http:\/\/(www\.)?.+\.\w+\//i';
     $wpv_permalink = preg_replace($wpv_replace, "/", $varnish_url);
     $wpv_host = preg_replace($wpv_replace_wpurl, "", $wpv_wpurl);
-    $varnish_sock = fsockopen($wpv_purgeaddr, $wpv_purgeport, $errno, $errstr, 30);
-    if (!$varnish_sock) {
-      echo "$errstr ($errno)<br />\n";
-    } else {
-      $out = "PURGE $wpv_permalink HTTP/1.0\r\n";
-      $out .= "Host: $wpv_host\r\n";
-      $out .= "Connection: Close\r\n\r\n";
-      fwrite($varnish_sock, $out);
-      fclose($varnish_sock);
+
+    for ($i = 0; $i < count ($wpv_purgeaddr); $i++) {
+      $varnish_sock = fsockopen($wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, 30);
+      if (!$varnish_sock) {
+        echo "$errstr ($errno)<br />\n";
+      } else {
+        $out = "PURGE $wpv_permalink HTTP/1.0\r\n";
+        $out .= "Host: $wpv_host\r\n";
+        $out .= "Connection: Close\r\n\r\n";
+        fwrite($varnish_sock, $out);
+        fclose($varnish_sock);
+      }
     }
   }
 

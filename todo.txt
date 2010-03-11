@@ -1,3 +1,4 @@
 * WPVarnishPurgeObject does not quite work yet. Fix.
 * Make the administration interface actually work.
 * Purge on other hooks.
+* Multiple varnish servers seem to work, but the html/javascript part is lousy :/ I'm not familiar with html/javascript
