@@ -87,6 +87,7 @@ class WPVarnish {
           $ports = get_option($this->wpv_port_optname);
           echo "rowCount = $i\n";
           for ($i = 0; $i < count ($addrs); $i++) {
+             // let's center the row creation in one spot, in javascript
              echo "addRow('form-table', $i, '$addrs[$i]', $ports[$i]);\n";
         } ?>
         </script>

@@ -1,3 +1,5 @@
+// our id for our rows, we can have rows added and removed
+// so we need a base
 var rowCount = 0;
 
 function createRow(tableID, id, addr, port) {
@@ -25,7 +27,6 @@ function createRow(tableID, id, addr, port) {
 	dRow.type = "button";
 	dRow.name = "deleteRow";
 	dRow.value = "-";
-	//dRow.onclick = "deleteRow (" + tableID + ", " + id + ")";
 	dRow.id = id;
 	dRow.onclick = function () { deleteRow(tableID, id); }
 
@@ -53,7 +54,9 @@ function deleteRow(tableID, rowID) {
 		var tbody = document.getElementById(tableID).getElementsByTagName ('tbody')[0];
 		var trs = tbody.getElementsByTagName ('tr');
 
+		// the id = 0 we don't want to remove, as it is the header
 		for (var i = 1; i < trs.length; i++) {
+			// we use our own id, let's not mix up with table ids
 			var id = (trs[i].getElementsByTagName ('input')[0]).id;
 			if (id == rowID) {
 				tbody.deleteRow (i);
