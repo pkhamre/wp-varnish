@@ -81,25 +81,17 @@ class WPVarnish {
             <th scope="row">Varnish Adm IP Address</th>
             <th scope="row">Varnish Adm Port</th>
         </tr>
+        <script>
         <?php
           $addrs = get_option($this->wpv_addr_optname);
           $ports = get_option($this->wpv_port_optname);
+          echo "rowCount = $i\n";
           for ($i = 0; $i < count ($addrs); $i++) {
-        ?>
-        <tr valign="top">
-            <td>
-                <input class="regular-text" type="text" id="<?php echo $this->wpv_addr_optname . '[]'; ?>" name="<?php echo $this->wpv_addr_optname . '[]'; ?>" value="<?php echo $addrs[$i]; ?>" />
-            </td>
-            <td>
-                <input class="regular-text" type="text" id="<?php echo $this->wpv_addr_optname . '[]'; ?>" name="<?php echo $this->wpv_port_optname . '[]'; ?>" value="<?php echo $ports[$i]; ?>" />
-            </td>
-            <td>
-                <input type="button" class="" name="<?php $i ?>" value="-" onclick="deleteRow (this.form, id)" />
-            </td>
-        </tr>
-        <?php } ?>
+             echo "addRow('form-table', $i, '$addrs[$i]', $ports[$i]);\n";
+        } ?>
+        </script>
       </table>
-      <input type="button" class="" name="wpvarnish_admin" value="+" onclick="addRow ('form-table')" />
+      <input type="button" class="" name="wpvarnish_admin" value="+" onclick="addRow ('form-table', rowCount)" />
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="Save Changes" /></p>
       </form>
     </div>

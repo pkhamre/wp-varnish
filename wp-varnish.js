@@ -1,48 +1,66 @@
-function addRow(tableID) {
-	var tbody = document.getElementById(tableID).getElementsByTagName ('tbody')[0];
+var rowCount = 0;
 
+function createRow(tableID, id, addr, port) {
 	var row = document.createElement ('tr');
 	var td1 = document.createElement ('td');
 	var td2 = document.createElement ('td');
+	var td3 = document.createElement ('td');
 	var wpv_addr = document.createElement ('input');
 	var wpv_port = document.createElement ('input');
+	var dRow = document.createElement ('input');
 
-	wpv_addr.class = "regular-text";
+	wpv_addr.className = "regular-text";
 	wpv_addr.type = "text";
-	wpv_addr.id = "wpvarnish_addr[]";
+	wpv_addr.id = id;
 	wpv_addr.name = "wpvarnish_addr[]";
-	wpv_addr.value = "";
+	wpv_addr.value = addr || "";
 
-	wpv_port.class = "regular-text";
+	wpv_port.className = "regular-text";
 	wpv_port.type = "text";
-	wpv_port.id = "wpvarnish_port[]";
+	wpv_port.id = id;
 	wpv_port.name = "wpvarnish_port[]";
-	wpv_port.value = "";
+	wpv_port.value = port || "";
+
+	dRow.className = "";
+	dRow.type = "button";
+	dRow.name = "deleteRow";
+	dRow.value = "-";
+	//dRow.onclick = "deleteRow (" + tableID + ", " + id + ")";
+	dRow.id = id;
+	dRow.onclick = function () { deleteRow(tableID, id); }
 
 	td1.appendChild (wpv_addr);
 	td2.appendChild (wpv_port);
+	td3.appendChild (dRow);
 	row.appendChild (td1);
 	row.appendChild (td2);
+	row.appendChild (td3);
+
+	return row;
+}
+
+function addRow(tableID, id, addr, port) {
+	var tbody = document.getElementById(tableID).getElementsByTagName ('tbody')[0];
+
+	rowCount++;
+	var row = createRow(tableID, id, addr, port);
+
 	tbody.appendChild (row);
 }
 
 function deleteRow(tableID, rowID) {
 	try {
 		var tbody = document.getElementById(tableID).getElementsByTagName ('tbody')[0];
-		tbody.getElement
-		var rowCount = tbody.rows.length;
+		var trs = tbody.getElementsByTagName ('tr');
 
-		for (var i = 0; i < rowCount; i++) {
-			var row = tbody.rows[i];
-			var chkbox = row.cells[0].childNodes[0];
-			if(null != chkbox && true == chkbox.checked) {
-				tbody.deleteRow(i);
-				rowCount--;
-				i--;
+		for (var i = 1; i < trs.length; i++) {
+			var id = (trs[i].getElementsByTagName ('input')[0]).id;
+			if (id == rowID) {
+				tbody.deleteRow (i);
+				return;
 			}
-
 		}
-	}catch(e) {
+	} catch(e) {
 		alert(e);
 	}
 }
