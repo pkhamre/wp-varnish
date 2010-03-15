@@ -1,5 +1,5 @@
 === WordPress Varnish ===
-Contributors: pkhamre
+Contributors: pkhamre, wfelipe
 Donate link: http://github.com/pkhamre/wp-varnish
 Tags: cache, caching, performance, varnish, purge, speed
 Requires at least: 2.9.2
