@@ -133,15 +133,18 @@ class WPVarnish {
     $wpv_wpurl = get_bloginfo('wpurl');
     $wpv_replace_wpurl = '/^http:\/\//i';
     $wpv_host = preg_replace($wpv_replace_wpurl, "", $wpv_wpurl);
-    $varnish_sock = fsockopen($wpv_purgeaddr, $wpv_purgeport, $errno, $errstr, 30);
-    if (!$varnish_sock) {
-      echo "$errstr ($errno)<br />\n";
-    } else {
-      $out = "PURGE $wpv_url HTTP/1.0\r\n";
-      $out .= "Host: $wpv_host\r\n";
-      $out .= "Connection: Close\r\n\r\n";
-      fwrite($varnish_sock, $out);
-      fclose($varnish_sock);
+
+    for ($i = 0; $i < count ($wpv_purgeaddr); $i++) {
+      $varnish_sock = fsockopen($wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, 30);
+      if (!$varnish_sock) {
+        echo "$errstr ($errno)<br />\n";
+      } else {
+        $out = "PURGE $wpv_url HTTP/1.0\r\n";
+        $out .= "Host: $wpv_host\r\n";
+        $out .= "Connection: Close\r\n\r\n";
+        fwrite($varnish_sock, $out);
+        fclose($varnish_sock);
+      }
     }
   }
 }
