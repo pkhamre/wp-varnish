@@ -1,3 +1,4 @@
 * WPVarnishPurgeObject does not quite work yet. Fix.
 * Make the administration interface actually work.
 * Purge on other hooks.
+* Add timeout as a configuration
