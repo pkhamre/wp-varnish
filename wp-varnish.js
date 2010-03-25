@@ -17,7 +17,7 @@ function createRow(tableID, id, addr, port) {
 	wpv_addr.name = "wpvarnish_addr[]";
 	wpv_addr.value = addr || "";
 
-	wpv_port.className = "regular-text";
+	wpv_port.className = "small-text";
 	wpv_port.type = "text";
 	wpv_port.id = id;
 	wpv_port.name = "wpvarnish_port[]";

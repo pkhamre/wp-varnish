@@ -26,14 +26,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class WPVarnish {
   public $wpv_addr_optname;
   public $wpv_port_optname;
+  public $wpv_timeout;
 
   function WPVarnish() {
     global $post;
 
     $this->wpv_addr_optname = "wpvarnish_addr";
     $this->wpv_port_optname = "wpvarnish_port";
+    $this->wpv_timeout_optname = "wpvarnish_timeout";
     $wpv_addr_optval = array ("127.0.0.1");
-    $wpv_port_optval = array ("80");
+    $wpv_port_optval = array (80);
+    $wpv_timeout_optval = 5;
 
     if ( (get_option($this->wpv_addr_optname) == FALSE) ) {
       add_option($this->wpv_addr_optname, $wpv_addr_optval, '', 'yes');
@@ -41,6 +44,10 @@ class WPVarnish {
 
     if ( (get_option($this->wpv_port_optname) == FALSE) ) {
       add_option($this->wpv_port_optname, $wpv_port_optval, '', 'yes');
+    }
+
+    if ( (get_option($this->wpv_timeout_optname) == FALSE) ) {
+      add_option($this->wpv_timeout_optname, $wpv_timeout_optval, '', 'yes');
     }
 
     add_action('admin_menu', array(&$this, 'WPVarnishAdminMenu'));
@@ -64,9 +71,11 @@ class WPVarnish {
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $wpv_addr_optval = $_POST["$this->wpv_addr_optname"];
       $wpv_port_optval = $_POST["$this->wpv_port_optname"];
+      $wpv_timeout_optval = $_POST["$this->wpv_timeout_optname"];
 
       update_option($this->wpv_addr_optname, $wpv_addr_optval);
       update_option($this->wpv_port_optname, $wpv_port_optval);
+      update_option($this->wpv_timeout_optname, $wpv_timeout_optval);
     }
 
     ?>
@@ -75,6 +84,7 @@ class WPVarnish {
       <h2>WordPress Varnish Administration</h2>
       <h3>IP address and port configuration</h3>
       <form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
+       <!-- <table class="form-table" id="form-table" width=""> -->
        <table class="form-table" id="form-table">
         <tr valign="top">
             <th scope="row">Varnish Adm IP Address</th>
@@ -84,14 +94,22 @@ class WPVarnish {
         <?php
           $addrs = get_option($this->wpv_addr_optname);
           $ports = get_option($this->wpv_port_optname);
+          $timeout = get_option($this->wpv_timeout_optname);
           echo "rowCount = $i\n";
           for ($i = 0; $i < count ($addrs); $i++) {
              // let's center the row creation in one spot, in javascript
              echo "addRow('form-table', $i, '$addrs[$i]', $ports[$i]);\n";
         } ?>
         </script>
+        <tr>
+          <th class="th-full" colspan="3"><input type="button" class="" name="wpvarnish_admin" value="+" onclick="addRow ('form-table', rowCount)" /></th>
+        </tr>
+        <tr>
+          <th class="th-full" colspan="3">Timeout: <input class="small-text" type="text" name="wpvarnish_timeout" value="<?php echo $timeout; ?>" /> seconds</th>
+        </tr>
       </table>
-      <input type="button" class="" name="wpvarnish_admin" value="+" onclick="addRow ('form-table', rowCount)" />
+
+
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="Save Changes" /></p>
       </form>
     </div>
@@ -104,6 +122,7 @@ class WPVarnish {
     $varnish_url = get_permalink($wpv_postid);
     $wpv_purgeaddr = get_option($this->wpv_addr_optname);
     $wpv_purgeport = get_option($this->wpv_port_optname);
+    $wpv_timeout = get_option($this->wpv_timeout_optname);
     $wpv_wpurl = get_bloginfo('wpurl');
     $wpv_replace_wpurl = '/^http:\/\//i';
     $wpv_replace = '/^http:\/\/(www\.)?.+\.\w+\//i';
@@ -111,7 +130,7 @@ class WPVarnish {
     $wpv_host = preg_replace($wpv_replace_wpurl, "", $wpv_wpurl);
 
     for ($i = 0; $i < count ($wpv_purgeaddr); $i++) {
-      $varnish_sock = fsockopen($wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, 30);
+      $varnish_sock = fsockopen($wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, $wpv_timeout);
       if (!$varnish_sock) {
         echo "$errstr ($errno)<br />\n";
       } else {
