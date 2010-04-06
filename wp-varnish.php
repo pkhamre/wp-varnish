@@ -52,6 +52,7 @@ class WPVarnish {
 
     add_action('admin_menu', array(&$this, 'WPVarnishAdminMenu'));
     add_action('edit_post', array(&$this, 'WPVarnishPurgePost'), 99);
+    add_action('edit_post', array(&$this, 'WPVarnishPurgeCommonObjects'), 99);
     add_action('deleted_post', array(&$this, 'WPVarnishPurgeCommonObjects'), 99);
     add_action('publish_post', array(&$this, 'WPVarnishPurgeCommonObjects'), 99);
   }
