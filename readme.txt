@@ -4,7 +4,7 @@ Donate link: http://github.com/pkhamre/wp-varnish
 Tags: cache, caching, performance, varnish, purge, speed
 Requires at least: 2.9.2
 Tested up to: 2.9.2
-Stable tag: 0.1
+Stable tag: 0.2
 
 WordPress Varnish is a simple plugin that purges new and edited content.
 
