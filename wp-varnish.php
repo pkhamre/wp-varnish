@@ -50,12 +50,26 @@ class WPVarnish {
       add_option($this->wpv_timeout_optname, $wpv_timeout_optval, '', 'yes');
     }
 
+    // Localization init
     add_action('init', array(&$this, 'WPVarnishLocalization'));
+
+    // Add Administration Interface
     add_action('admin_menu', array(&$this, 'WPVarnishAdminMenu'));
+
+    // When posts/pages are published, edited or deleted
     add_action('edit_post', array(&$this, 'WPVarnishPurgePost'), 99);
     add_action('edit_post', array(&$this, 'WPVarnishPurgeCommonObjects'), 99);
+
+    // When comments are made, edited or deleted
+    add_action('comment_post', array(&$this, 'WPVarnishPurgePostComments'),99);
+    add_action('edit_comment', array(&$this, 'WPVarnishPurgePostComments'),99);
+    add_action('trashed_comment', array(&$this, 'WPVarnishPurgePostComments'),99);
+    add_action('untrashed_comment', array(&$this, 'WPVarnishPurgePostComments'),99);
+    add_action('deleted_comment', array(&$this, 'WPVarnishPurgePostComments'),99);
+
+    // When posts or pages are deleted
+    add_action('deleted_post', array(&$this, 'WPVarnishPurgePost'), 99);
     add_action('deleted_post', array(&$this, 'WPVarnishPurgeCommonObjects'), 99);
-    add_action('publish_post', array(&$this, 'WPVarnishPurgeCommonObjects'), 99);
   }
 
   function WPVarnishLocalization() {
@@ -68,6 +82,40 @@ class WPVarnish {
     $this->WPVarnishPurgeObject("/feed/atom/");
   }
 
+  // WPVarnishPurgeAll - Using a regex, clear all blog cache.
+  function WPVarnishPurgeAll() {
+    $this->WPVarnishPurgeObject('/(.*)');
+  }
+
+  // WPVarnishPurgePost - Takes a post id (number) as an argument and generates
+  // the location path to the object that will be purged based on the permalink.
+  function WPVarnishPurgePost($wpv_postid) {
+    $wpv_url = get_permalink($wpv_postid);
+    $wpv_permalink = str_replace(get_bloginfo('wpurl'),"",$wpv_url);
+
+    $this->WPVarnishPurgeObject($wpv_permalink);
+  }
+
+  // WPVarnishPurgePostComments - Purge all comments pages from a post
+  function WPVarnishPurgePostComments($wpv_commentid) {
+    $comment = get_comment($wpv_commentid);
+    $wpv_commentapproved = $comment->comment_approved;
+
+    // If approved or deleting...
+    if ($wpv_commentapproved == 1 || $wpv_commentapproved == 'trash') {
+       $wpv_postid = $comment->comment_post_ID;
+
+       // Popup comments
+       $this->WPVarnishPurgeObject('/(.*)?comments_popup=' . $wpv_postid);
+
+       // Inline, paged comments
+       //$wpv_url = get_permalink($wpv_postid);
+       //$wpv_permalink = str_replace(get_bloginfo('wpurl'),"",$wpv_url);
+       //$this->WPVarnishPurgeObject($wpv_permalink . '\\?cp=[1-9]+');
+       //$this->WPVarnishPurgeObject('/\\p=' . $wpv_postid . '&cp=[1-9]+');
+    }
+  }
+
   function WPVarnishAdminMenu() {
     add_options_page('WPVarnish', 'WPVarnish', 1, 'WPVarnish', array(&$this, 'WPVarnishAdmin'));
   }
@@ -75,20 +123,27 @@ class WPVarnish {
   // WpVarnishAdmin - Draw the administration interface.
   function WPVarnishAdmin() {
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-      $wpv_addr_optval = $_POST["$this->wpv_addr_optname"];
-      $wpv_port_optval = $_POST["$this->wpv_port_optname"];
-      $wpv_timeout_optval = $_POST["$this->wpv_timeout_optname"];
+       if (isset($_POST['wpvarnish_admin'])) {
+          $wpv_addr_optval = $_POST["$this->wpv_addr_optname"];
+          $wpv_port_optval = $_POST["$this->wpv_port_optname"];
+          $wpv_timeout_optval = $_POST["$this->wpv_timeout_optname"];
 
-      update_option($this->wpv_addr_optname, $wpv_addr_optval);
-      update_option($this->wpv_port_optname, $wpv_port_optval);
-      update_option($this->wpv_timeout_optname, $wpv_timeout_optval);
+          update_option($this->wpv_addr_optname, $wpv_addr_optval);
+          update_option($this->wpv_port_optname, $wpv_port_optval);
+          update_option($this->wpv_timeout_optname, $wpv_timeout_optval);
+       }
+
+       if (isset($_POST['wpvarnish_clear_blog_cache']))
+          $this->WPVarnishPurgeAll();
     }
 
+         $timeout = get_option($this->wpv_timeout_optname);
     ?>
     <div class="wrap">
       <script type="text/javascript" src="<?php echo get_option('siteurl'); ?>/wp-content/plugins/wp-varnish/wp-varnish.js"></script>
       <h2><?php echo __("WordPress Varnish Administration",'wp-varnish'); ?></h2>
       <h3><?php echo __("IP address and port configuration",'wp-varnish'); ?></h3>
+      <form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
     <?php 
           // Can't be edited - already defined in wp-config.php
           global $varnish_servers;
@@ -107,7 +162,6 @@ class WPVarnish {
           } else {
           // If not defined in wp-config.php, use individual configuration.
     ?>
-      <form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
        <!-- <table class="form-table" id="form-table" width=""> -->
        <table class="form-table" id="form-table">
         <tr valign="top">
@@ -118,7 +172,6 @@ class WPVarnish {
         <?php
           $addrs = get_option($this->wpv_addr_optname);
           $ports = get_option($this->wpv_port_optname);
-          $timeout = get_option($this->wpv_timeout_optname);
           echo "rowCount = $i\n";
           for ($i = 0; $i < count ($addrs); $i++) {
              // let's center the row creation in one spot, in javascript
@@ -128,57 +181,18 @@ class WPVarnish {
         <tr>
           <th class="th-full" colspan="3"><input type="button" class="" name="wpvarnish_admin" value="+" onclick="addRow ('form-table', rowCount)" /></th>
         </tr>
-        <tr>
-          <th class="th-full" colspan="3"><?php echo __("Timeout",'wp-varnish'); ?>: <input class="small-text" type="text" name="wpvarnish_timeout" value="<?php echo $timeout; ?>" /> <?php echo __("seconds",'wp-varnish'); ?></th>
-        </tr>
       </table>
-
-
-      <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __("Save Changes",'wp-varnish'); ?>" /></p>
-      </form>
       <?php
          }
       ?>
+      <p><?php echo __("Timeout",'wp-varnish'); ?>: <input class="small-text" type="text" name="wpvarnish_timeout" value="<?php echo $timeout; ?>" /> <?php echo __("seconds",'wp-varnish'); ?></p>
+
+      <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __("Save Changes",'wp-varnish'); ?>" /></p>
+      
+      <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_clear_blog_cache" value="<?php echo __("Purge All Blog Cache",'wp-varnish'); ?>" /></p>
+      </form>
     </div>
   <?php
-  }
-
-  // WPVarnishPurgePost - Takes a post id (number) as an argument and generates
-  // the location path to the object that will be purged based on the permalink.
-  function WPVarnishPurgePost($wpv_postid) {
-    global $varnish_servers;
-
-    $varnish_url = get_permalink($wpv_postid);
-    if (is_array($varnish_servers)) {
-       foreach ($varnish_servers as $server) {
-          list ($host, $port) = explode(':', $server);
-          $wpv_purgeaddr[] = $host;
-          $wpv_purgeport[] = $port;
-       }
-    } else {
-       $wpv_purgeaddr = get_option($this->wpv_addr_optname);
-       $wpv_purgeport = get_option($this->wpv_port_optname);
-    }
-
-    $wpv_timeout = get_option($this->wpv_timeout_optname);
-    $wpv_wpurl = get_bloginfo('wpurl');
-    $wpv_replace_wpurl = '/^http:\/\/([^\/]+).*/i';
-    $wpv_replace = '/^http:\/\/(www\.)?.+\.\w+\//i';
-    $wpv_permalink = preg_replace($wpv_replace, "/", $varnish_url);
-    $wpv_host = preg_replace($wpv_replace_wpurl, "$1", $wpv_wpurl);
-
-    for ($i = 0; $i < count ($wpv_purgeaddr); $i++) {
-      $varnish_sock = fsockopen($wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, $wpv_timeout);
-      if (!$varnish_sock) {
-        echo "$errstr ($errno)<br />\n";
-      } else {
-        $out = "PURGE $wpv_permalink HTTP/1.0\r\n";
-        $out .= "Host: $wpv_host\r\n";
-        $out .= "Connection: Close\r\n\r\n";
-        fwrite($varnish_sock, $out);
-        fclose($varnish_sock);
-      }
-    }
   }
 
   // WPVarnishPurgeObject - Takes a location as an argument and purges this object
@@ -206,7 +220,7 @@ class WPVarnish {
     for ($i = 0; $i < count ($wpv_purgeaddr); $i++) {
       $varnish_sock = fsockopen($wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, 30);
       if (!$varnish_sock) {
-        echo "$errstr ($errno)<br />\n";
+        error_log("wp-varnish error: $errstr ($errno)");
       } else {
         $out = "PURGE $wpv_url HTTP/1.0\r\n";
         $out .= "Host: $wpv_host\r\n";
