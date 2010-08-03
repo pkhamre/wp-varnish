@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP-Varnish 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-02 15:59-0300\n"
-"PO-Revision-Date: 2010-08-02 15:59-0300\n"
+"POT-Creation-Date: 2010-08-03 17:54-0300\n"
+"PO-Revision-Date: 2010-08-03 17:54-0300\n"
 "Last-Translator: Hugo Cisneiros <hugo.cisneiros@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -11,49 +11,53 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-KeywordsList: __;_;gettext;gettext_noop\n"
 "X-Poedit-Basepath: .\n"
-"X-Poedit-SearchPath-0: wp-varnish\n"
+"X-Poedit-SearchPath-0: ..\n"
 
-#: wp-varnish/wp-varnish.php:88
+#: ../wp-varnish.php:144
 msgid "WordPress Varnish Administration"
 msgstr ""
 
-#: wp-varnish/wp-varnish.php:89
+#: ../wp-varnish.php:145
 msgid "IP address and port configuration"
 msgstr ""
 
-#: wp-varnish/wp-varnish.php:94
+#: ../wp-varnish.php:151
 msgid "These values can't be edited since there's a global configuration located in <em>wp-config.php</em>. If you want to change these settings, please update the file or contact the administrator."
 msgstr ""
 
-#: wp-varnish/wp-varnish.php:97
+#: ../wp-varnish.php:154
 msgid "Current configuration:"
 msgstr ""
 
-#: wp-varnish/wp-varnish.php:101
+#: ../wp-varnish.php:158
 msgid "Server: "
 msgstr ""
 
-#: wp-varnish/wp-varnish.php:101
+#: ../wp-varnish.php:158
 msgid "Port: "
 msgstr ""
 
-#: wp-varnish/wp-varnish.php:112
+#: ../wp-varnish.php:168
 msgid "Varnish Administration IP Address"
 msgstr ""
 
-#: wp-varnish/wp-varnish.php:113
+#: ../wp-varnish.php:169
 msgid "Varnish Administration Port"
 msgstr ""
 
-#: wp-varnish/wp-varnish.php:130
+#: ../wp-varnish.php:188
 msgid "Timeout"
 msgstr ""
 
-#: wp-varnish/wp-varnish.php:130
+#: ../wp-varnish.php:188
 msgid "seconds"
 msgstr ""
 
-#: wp-varnish/wp-varnish.php:135
+#: ../wp-varnish.php:190
 msgid "Save Changes"
+msgstr ""
+
+#: ../wp-varnish.php:192
+msgid "Purge All Blog Cache"
 msgstr ""
 
