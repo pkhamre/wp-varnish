@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP-Varnish 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-03 17:54-0300\n"
-"PO-Revision-Date: 2010-08-03 17:54-0300\n"
+"POT-Creation-Date: 2010-08-04 15:36-0300\n"
+"PO-Revision-Date: 2010-08-04 15:38-0300\n"
 "Last-Translator: Hugo Cisneiros <hugo.cisneiros@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,51 +16,71 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 "X-Poedit-SearchPath-0: wp-varnish\n"
 
-#: ../wp-varnish.php:144
+#: ../wp-varnish.php:178
+msgid "Settings Saved!"
+msgstr "Configurações Salvas!"
+
+#: ../wp-varnish.php:180
+msgid "You do not have the privileges."
+msgstr "Você não tem os privilégios necessários."
+
+#: ../wp-varnish.php:190
 msgid "WordPress Varnish Administration"
 msgstr "Administração do Varnish no WordPress"
 
-#: ../wp-varnish.php:145
+#: ../wp-varnish.php:191
 msgid "IP address and port configuration"
 msgstr "Configuração de Endereços IP e Portas"
 
-#: ../wp-varnish.php:151
+#: ../wp-varnish.php:197
 msgid "These values can't be edited since there's a global configuration located in <em>wp-config.php</em>. If you want to change these settings, please update the file or contact the administrator."
 msgstr "Estes valores não podem ser editados, pois existe uma configuração global localizada no <em>wp-config.php</em>. Se você deseja mudar estas configurações, por favor atualize o arquivo ou entre em contato com o administrador."
 
-#: ../wp-varnish.php:154
+#: ../wp-varnish.php:200
 msgid "Current configuration:"
 msgstr "Configuração atual:"
 
-#: ../wp-varnish.php:158
+#: ../wp-varnish.php:204
 msgid "Server: "
 msgstr "Servidor: "
 
-#: ../wp-varnish.php:158
+#: ../wp-varnish.php:204
 msgid "Port: "
 msgstr "Porta: "
 
-#: ../wp-varnish.php:168
+#: ../wp-varnish.php:214
 msgid "Varnish Administration IP Address"
 msgstr "Endereço IP de Administração do Varnish"
 
-#: ../wp-varnish.php:169
+#: ../wp-varnish.php:215
 msgid "Varnish Administration Port"
 msgstr "Porta de Administração do Varnish"
 
-#: ../wp-varnish.php:188
+#: ../wp-varnish.php:234
 msgid "Timeout"
 msgstr "Timeout"
 
-#: ../wp-varnish.php:188
+#: ../wp-varnish.php:234
 msgid "seconds"
 msgstr "segundos"
 
-#: ../wp-varnish.php:190
+#: ../wp-varnish.php:236
+msgid "Also purge all page navigation (experimental, use carefully, it will include a bit more load on varnish servers.)"
+msgstr "Também limpar o cache de toda navegação de páginas (experimental, use com cuidado, irá colocar um pouco de carga a mais nos servidores varnish.)"
+
+#: ../wp-varnish.php:238
+msgid "Also purge all comment navigation (experimental, use carefully, it will include a bit more load on varnish servers.)"
+msgstr "Também limpar o cache de toda navegação de comentários (experimental, use com cuidado, irá colocar um pouco de carga a mais nos servidores varnish.)"
+
+#: ../wp-varnish.php:240
 msgid "Save Changes"
 msgstr "Salvar Mudanças"
 
-#: ../wp-varnish.php:192
+#: ../wp-varnish.php:242
 msgid "Purge All Blog Cache"
 msgstr "Limpar Todo Cache do Blog"
+
+#: ../wp-varnish.php:242
+msgid "Use only if necessary, and carefully as this will include a bit more load on varnish servers."
+msgstr "Use apenas se necessário, e com cuidado pois irá colocar um pouco de carga a mais nos servidores varnish."
 
