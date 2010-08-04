@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP-Varnish 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-04 15:36-0300\n"
-"PO-Revision-Date: 2010-08-04 15:36-0300\n"
+"POT-Creation-Date: 2010-08-04 15:54-0300\n"
+"PO-Revision-Date: 2010-08-04 15:54-0300\n"
 "Last-Translator: Hugo Cisneiros <hugo.cisneiros@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -12,6 +12,10 @@ msgstr ""
 "X-Poedit-KeywordsList: __;_;gettext;gettext_noop\n"
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
+
+#: ../wp-varnish.php:139
+msgid "WP-Varnish Configuration"
+msgstr ""
 
 #: ../wp-varnish.php:178
 msgid "Settings Saved!"

@@ -59,6 +59,7 @@ users who access the plugin configuration page (but they can't edit it).
 * Support to Multi-Site and WPMU with global configuration.
 * Fix on URL purges for multiple domains and blogs on sub-directories.
 * Code clean up on some functions.
+* Added configuration for purging all blog, page and comments navigation.
 
 = 0.2 =
 * Added multiple servers support and timeout configuration.
