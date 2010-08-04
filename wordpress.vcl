@@ -13,7 +13,7 @@ sub vcl_recv {
       error 405 "Not allowed.";
     }
 
-    purge("req.url == " req.url);
+    purge("req.url ~ ^" req.url "$ && req.http.host == "req.http.host);
   }
 
   if (req.request != "GET" &&
