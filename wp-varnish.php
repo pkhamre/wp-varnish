@@ -82,7 +82,7 @@ class WPVarnish {
     $this->WPVarnishPurgeObject("/feed/atom/");
   }
 
-  // WPVarnishPurgeAll - Using a regex, clear all blog cache.
+  // WPVarnishPurgeAll - Using a regex, clear all blog cache. Use carefully.
   function WPVarnishPurgeAll() {
     $this->WPVarnishPurgeObject('/(.*)');
   }
@@ -106,13 +106,7 @@ class WPVarnish {
        $wpv_postid = $comment->comment_post_ID;
 
        // Popup comments
-       $this->WPVarnishPurgeObject('/(.*)?comments_popup=' . $wpv_postid);
-
-       // Inline, paged comments
-       //$wpv_url = get_permalink($wpv_postid);
-       //$wpv_permalink = str_replace(get_bloginfo('wpurl'),"",$wpv_url);
-       //$this->WPVarnishPurgeObject($wpv_permalink . '\\?cp=[1-9]+');
-       //$this->WPVarnishPurgeObject('/\\p=' . $wpv_postid . '&cp=[1-9]+');
+       $this->WPVarnishPurgeObject('/\\\?comments_popup=' . $wpv_postid);
     }
   }
 
@@ -189,7 +183,7 @@ class WPVarnish {
 
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __("Save Changes",'wp-varnish'); ?>" /></p>
       
-      <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_clear_blog_cache" value="<?php echo __("Purge All Blog Cache",'wp-varnish'); ?>" /></p>
+      <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_clear_blog_cache" value="<?php echo __("Purge All Blog Cache",'wp-varnish'); ?>" /> <?php echo __("Use only if necessary, and carefully as this will include a bit more load on varnish servers"); ?></p>
       </form>
     </div>
   <?php
