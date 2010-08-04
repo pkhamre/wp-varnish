@@ -224,8 +224,13 @@ class WPVarnish {
              echo "addRow('form-table', $i, '$addrs[$i]', $ports[$i]);\n";
         } ?>
         </script>
+	</table>
+
+      <br/>
+
+      <table>
         <tr>
-          <th class="th-full" colspan="3"><input type="button" class="" name="wpvarnish_admin" value="+" onclick="addRow ('form-table', rowCount)" /></th>
+          <td colspan="3"><input type="button" class="" name="wpvarnish_admin" value="+" onclick="addRow ('form-table', rowCount)" /> <?php echo __("Add one more server",'wp-varnish'); ?></td>
         </tr>
       </table>
       <?php

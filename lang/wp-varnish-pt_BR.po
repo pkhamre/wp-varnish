@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP-Varnish 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-04 15:54-0300\n"
-"PO-Revision-Date: 2010-08-04 15:55-0300\n"
+"POT-Creation-Date: 2010-08-04 17:15-0300\n"
+"PO-Revision-Date: 2010-08-04 17:16-0300\n"
 "Last-Translator: Hugo Cisneiros <hugo.cisneiros@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -60,31 +60,35 @@ msgstr "Endereço IP de Administração do Varnish"
 msgid "Varnish Administration Port"
 msgstr "Porta de Administração do Varnish"
 
-#: ../wp-varnish.php:234
+#: ../wp-varnish.php:233
+msgid "Add one more server"
+msgstr "Adicionar mais um servidor"
+
+#: ../wp-varnish.php:239
 msgid "Timeout"
 msgstr "Timeout"
 
-#: ../wp-varnish.php:234
+#: ../wp-varnish.php:239
 msgid "seconds"
 msgstr "segundos"
 
-#: ../wp-varnish.php:236
+#: ../wp-varnish.php:241
 msgid "Also purge all page navigation (experimental, use carefully, it will include a bit more load on varnish servers.)"
 msgstr "Também limpar o cache de toda navegação de páginas (experimental, use com cuidado, irá colocar um pouco de carga a mais nos servidores varnish.)"
 
-#: ../wp-varnish.php:238
+#: ../wp-varnish.php:243
 msgid "Also purge all comment navigation (experimental, use carefully, it will include a bit more load on varnish servers.)"
 msgstr "Também limpar o cache de toda navegação de comentários (experimental, use com cuidado, irá colocar um pouco de carga a mais nos servidores varnish.)"
 
-#: ../wp-varnish.php:240
+#: ../wp-varnish.php:245
 msgid "Save Changes"
 msgstr "Salvar Mudanças"
 
-#: ../wp-varnish.php:242
+#: ../wp-varnish.php:247
 msgid "Purge All Blog Cache"
 msgstr "Limpar Todo Cache do Blog"
 
-#: ../wp-varnish.php:242
+#: ../wp-varnish.php:247
 msgid "Use only if necessary, and carefully as this will include a bit more load on varnish servers."
 msgstr "Use apenas se necessário, e com cuidado pois irá colocar um pouco de carga a mais nos servidores varnish."
 
