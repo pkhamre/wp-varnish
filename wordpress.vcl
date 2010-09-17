@@ -43,6 +43,6 @@ sub vcl_fetch {
     return (pass);
   }
 
-  set obj.ttl = 24h;
+  set beresp.ttl = 24h;
   return (deliver);
 }
