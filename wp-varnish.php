@@ -38,11 +38,13 @@ class WPVarnish {
     $this->wpv_timeout_optname = "wpvarnish_timeout";
     $this->wpv_update_pagenavi_optname = "wpvarnish_update_pagenavi";
     $this->wpv_update_commentnavi_optname = "wpvarnish_update_commentnavi";
+    $this->wpv_use_adminport_optname = "wpvarnish_use_adminport";
     $wpv_addr_optval = array ("127.0.0.1");
     $wpv_port_optval = array (80);
     $wpv_timeout_optval = 5;
     $wpv_update_pagenavi_optval = 0;
     $wpv_update_commentnavi_optval = 0;
+    $wpv_use_adminport_optval = 0;
 
     if ( (get_option($this->wpv_addr_optname) == FALSE) ) {
       add_option($this->wpv_addr_optname, $wpv_addr_optval, '', 'yes');
@@ -62,6 +64,10 @@ class WPVarnish {
 
     if ( (get_option($this->wpv_update_commentnavi_optname) == FALSE) ) {
       add_option($this->wpv_update_commentnavi_optname, $wpv_update_commentnavi_optval, '', 'yes');
+    }
+
+    if ( (get_option($this->wpv_use_adminport_optname) == FALSE) ) {
+      add_option($this->wpv_use_adminport_optname, $wpv_use_adminport_optval, '', 'yes');
     }
 
     // Localization init
@@ -170,6 +176,12 @@ class WPVarnish {
              } else {
                 update_option($this->wpv_update_commentnavi_optname, 0);
              }
+
+             if (!empty($_POST["$this->wpv_use_adminport_optname"])) {
+                update_option($this->wpv_use_adminport_optname, 1);
+             } else {
+                update_option($this->wpv_use_adminport_optname, 0);
+             }
           }
 
           if (isset($_POST['wpvarnish_clear_blog_cache']))
@@ -184,6 +196,7 @@ class WPVarnish {
          $wpv_timeout_optval = get_option($this->wpv_timeout_optname);
          $wpv_update_pagenavi_optval = get_option($this->wpv_update_pagenavi_optname);
          $wpv_update_commentnavi_optval = get_option($this->wpv_update_commentnavi_optname);
+         $wpv_use_adminport_optval = get_option($this->wpv_use_adminport_optname);
     ?>
     <div class="wrap">
       <script type="text/javascript" src="<?php echo get_option('siteurl'); ?>/wp-content/plugins/wp-varnish/wp-varnish.js"></script>
@@ -238,6 +251,8 @@ class WPVarnish {
       ?>
       <p><?php echo __("Timeout",'wp-varnish'); ?>: <input class="small-text" type="text" name="wpvarnish_timeout" value="<?php echo $wpv_timeout_optval; ?>" /> <?php echo __("seconds",'wp-varnish'); ?></p>
 
+      <p><input type="checkbox" name="wpvarnish_use_adminport" value="1" <?php if ($wpv_use_adminport_optval == 1) echo 'checked '?>/> <?php echo __("Use admin port instead of PURGE method.",'wp-varnish'); ?></p>
+
       <p><input type="checkbox" name="wpvarnish_update_pagenavi" value="1" <?php if ($wpv_update_pagenavi_optval == 1) echo 'checked '?>/> <?php echo __("Also purge all page navigation (experimental, use carefully, it will include a bit more load on varnish servers.)",'wp-varnish'); ?></p>
 
       <p><input type="checkbox" name="wpvarnish_update_commentnavi" value="1" <?php if ($wpv_update_commentnavi_optval == 1) echo 'checked '?>/> <?php echo __("Also purge all comment navigation (experimental, use carefully, it will include a bit more load on varnish servers.)",'wp-varnish'); ?></p>
@@ -267,6 +282,7 @@ class WPVarnish {
     }
 
     $wpv_timeout = get_option($this->wpv_timeout_optname);
+    $wpv_use_adminport = get_option($this->wpv_use_adminport_optname);
 
     $wpv_wpurl = get_bloginfo('wpurl');
     $wpv_replace_wpurl = '/^http:\/\/([^\/]+)(.*)/i';
@@ -274,14 +290,20 @@ class WPVarnish {
     $wpv_blogaddr = preg_replace($wpv_replace_wpurl, "$2", $wpv_wpurl);
     $wpv_url = $wpv_blogaddr . $wpv_url;
 
+          echo "ADMIN PORT";
     for ($i = 0; $i < count ($wpv_purgeaddr); $i++) {
       $varnish_sock = fsockopen($wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, $wpv_timeout);
       if (!$varnish_sock) {
         error_log("wp-varnish error: $errstr ($errno)");
       } else {
-        $out = "PURGE $wpv_url HTTP/1.0\r\n";
-        $out .= "Host: $wpv_host\r\n";
-        $out .= "Connection: Close\r\n\r\n";
+        # use admin port instead of PURGE?
+        if($wpv_use_adminport) {
+          $out = "purge req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
+	} else {
+          $out = "PURGE $wpv_url HTTP/1.0\r\n";
+          $out .= "Host: $wpv_host\r\n";
+          $out .= "Connection: Close\r\n\r\n";
+        }
         fwrite($varnish_sock, $out);
         fclose($varnish_sock);
       }
