@@ -107,6 +107,7 @@ class WPVarnish {
     $this->WPVarnishPurgeObject("/");
     $this->WPVarnishPurgeObject("/feed/");
     $this->WPVarnishPurgeObject("/feed/atom/");
+    $this->WPVarnishPurgeObject("/category/(.*)");
 
     // Also purges page navigation
     if (get_option($this->wpv_update_pagenavi_optname) == 1) {
@@ -215,7 +216,7 @@ class WPVarnish {
       <h2><?php echo __("WordPress Varnish Administration",'wp-varnish'); ?></h2>
       <h3><?php echo __("IP address and port configuration",'wp-varnish'); ?></h3>
       <form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
-    <?php 
+    <?php
           // Can't be edited - already defined in wp-config.php
           global $varnish_servers;
           if (is_array($varnish_servers)) {
@@ -225,7 +226,7 @@ class WPVarnish {
                 echo "<h3>" . __("Current configuration:",'wp-varnish') . "</h3>\n";
                 echo "<ul>";
                 foreach ($varnish_servers as $server) {
-                   list ($host, $port, $secret) = explode(':', $server); 
+                   list ($host, $port, $secret) = explode(':', $server);
                    echo "<li>" . __("Server: ",'wp-varnish') . $host . "<br/>" . __("Port: ",'wp-varnish') . $port . "</li>";
                 }
                 echo "</ul>";
@@ -272,7 +273,7 @@ class WPVarnish {
       <p><input type="checkbox" name="wpvarnish_update_commentnavi" value="1" <?php if ($wpv_update_commentnavi_optval == 1) echo 'checked '?>/> <?php echo __("Also purge all comment navigation (experimental, use carefully, it will include a bit more load on varnish servers.)",'wp-varnish'); ?></p>
 
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __("Save Changes",'wp-varnish'); ?>" /></p>
-      
+
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_clear_blog_cache" value="<?php echo __("Purge All Blog Cache",'wp-varnish'); ?>" /> <?php echo __("Use only if necessary, and carefully as this will include a bit more load on varnish servers.",'wp-varnish'); ?></p>
       </form>
     </div>
