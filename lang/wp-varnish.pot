@@ -5,7 +5,9 @@ msgstr ""
 "POT-Creation-Date: 2010-08-04 17:15-0300\n"
 "PO-Revision-Date: 2010-10-20 23:33-0200\n"
 "Last-Translator: Wilson Felipe <wfelipe@gmail.com>\n"
-"Language-Team: Hugo Cisneiros <hugo.cisneiros@gmail.com>, Wilson Felipe <wfelipe@gmail.com>\n"
+"Language-Team: Hugo Cisneiros <hugo.cisneiros@gmail.com>, Wilson Felipe "
+"<wfelipe@gmail.com>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,82 +15,95 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../wp-varnish.php:145
+#: ../wp-varnish.php:152
 msgid "WP-Varnish Configuration"
 msgstr ""
 
-#: ../wp-varnish.php:190
+#: ../wp-varnish.php:202
 msgid "Settings Saved!"
 msgstr ""
 
-#: ../wp-varnish.php:192
+#: ../wp-varnish.php:204
 msgid "You do not have the privileges."
 msgstr ""
 
-#: ../wp-varnish.php:203
+#: ../wp-varnish.php:215
 msgid "WordPress Varnish Administration"
 msgstr ""
 
-#: ../wp-varnish.php:204
+#: ../wp-varnish.php:216
 msgid "IP address and port configuration"
 msgstr ""
 
-#: ../wp-varnish.php:210
-msgid "These values can't be edited since there's a global configuration located in <em>wp-config.php</em>. If you want to change these settings, please update the file or contact the administrator."
+#: ../wp-varnish.php:222
+msgid ""
+"These values can't be edited since there's a global configuration located in "
+"<em>wp-config.php</em>. If you want to change these settings, please update "
+"the file or contact the administrator."
 msgstr ""
 
-#: ../wp-varnish.php:213
+#: ../wp-varnish.php:225
 msgid "Current configuration:"
 msgstr ""
 
-#: ../wp-varnish.php:217
+#: ../wp-varnish.php:229
 msgid "Server: "
 msgstr ""
 
-#: ../wp-varnish.php:217
+#: ../wp-varnish.php:229
 msgid "Port: "
 msgstr ""
 
-#: ../wp-varnish.php:227
+#: ../wp-varnish.php:239
 msgid "Varnish Administration IP Address"
 msgstr ""
 
-#: ../wp-varnish.php:228
+#: ../wp-varnish.php:240
 msgid "Varnish Administration Port"
 msgstr ""
 
-#: ../wp-varnish.php:246
-msgid "Add one more server"
-msgstr ""
-
-#: ../wp-varnish.php:252
-msgid "Timeout"
-msgstr ""
-
-#: ../wp-varnish.php:252
-msgid "seconds"
-msgstr ""
-
-#: ../wp-varnish.php:254
-msgid "Use admin port instead of PURGE method."
-msgstr ""
-
-#: ../wp-varnish.php:256
-msgid "Also purge all page navigation (experimental, use carefully, it will include a bit more load on varnish servers.)"
-msgstr ""
-
-#: ../wp-varnish.php:258
-msgid "Also purge all comment navigation (experimental, use carefully, it will include a bit more load on varnish servers.)"
+#: ../wp-varnish.php:241
+msgid "Varnish Secret"
 msgstr ""
 
 #: ../wp-varnish.php:260
+msgid "Add one more server"
+msgstr ""
+
+#: ../wp-varnish.php:266
+msgid "Timeout"
+msgstr ""
+
+#: ../wp-varnish.php:266
+msgid "seconds"
+msgstr ""
+
+#: ../wp-varnish.php:268
+msgid "Use admin port instead of PURGE method."
+msgstr ""
+
+#: ../wp-varnish.php:270
+msgid ""
+"Also purge all page navigation (experimental, use carefully, it will include "
+"a bit more load on varnish servers.)"
+msgstr ""
+
+#: ../wp-varnish.php:272
+msgid ""
+"Also purge all comment navigation (experimental, use carefully, it will "
+"include a bit more load on varnish servers.)"
+msgstr ""
+
+#: ../wp-varnish.php:274
 msgid "Save Changes"
 msgstr ""
 
-#: ../wp-varnish.php:262
+#: ../wp-varnish.php:276
 msgid "Purge All Blog Cache"
 msgstr ""
 
-#: ../wp-varnish.php:262
-msgid "Use only if necessary, and carefully as this will include a bit more load on varnish servers."
+#: ../wp-varnish.php:276
+msgid ""
+"Use only if necessary, and carefully as this will include a bit more load on "
+"varnish servers."
 msgstr ""

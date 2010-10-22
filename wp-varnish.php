@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class WPVarnish {
   public $wpv_addr_optname;
   public $wpv_port_optname;
+  public $wpv_secret_optname;
   public $wpv_timeout_optname;
   public $wpv_update_pagenavi_optname;
   public $wpv_update_commentnavi_optname;
@@ -35,12 +36,14 @@ class WPVarnish {
 
     $this->wpv_addr_optname = "wpvarnish_addr";
     $this->wpv_port_optname = "wpvarnish_port";
+    $this->wpv_secret_optname = "wpvarnish_secret";
     $this->wpv_timeout_optname = "wpvarnish_timeout";
     $this->wpv_update_pagenavi_optname = "wpvarnish_update_pagenavi";
     $this->wpv_update_commentnavi_optname = "wpvarnish_update_commentnavi";
     $this->wpv_use_adminport_optname = "wpvarnish_use_adminport";
     $wpv_addr_optval = array ("127.0.0.1");
     $wpv_port_optval = array (80);
+    $wpv_secret_optval = array ("");
     $wpv_timeout_optval = 5;
     $wpv_update_pagenavi_optval = 0;
     $wpv_update_commentnavi_optval = 0;
@@ -52,6 +55,10 @@ class WPVarnish {
 
     if ( (get_option($this->wpv_port_optname) == FALSE) ) {
       add_option($this->wpv_port_optname, $wpv_port_optval, '', 'yes');
+    }
+
+    if ( (get_option($this->wpv_secret_optname) == FALSE) ) {
+      add_option($this->wpv_secret_optname, $wpv_secret_optval, '', 'yes');
     }
 
     if ( (get_option($this->wpv_timeout_optname) == FALSE) ) {
@@ -160,6 +167,11 @@ class WPVarnish {
                 update_option($this->wpv_port_optname, $wpv_port_optval);
              }
 
+             if (!empty($_POST["$this->wpv_secret_optname"])) {
+                $wpv_secret_optval = $_POST["$this->wpv_secret_optname"];
+                update_option($this->wpv_secret_optname, $wpv_secret_optval);
+             }
+
              if (!empty($_POST["$this->wpv_timeout_optname"])) {
                 $wpv_timeout_optval = $_POST["$this->wpv_timeout_optname"];
                 update_option($this->wpv_timeout_optname, $wpv_timeout_optval);
@@ -213,7 +225,7 @@ class WPVarnish {
                 echo "<h3>" . __("Current configuration:",'wp-varnish') . "</h3>\n";
                 echo "<ul>";
                 foreach ($varnish_servers as $server) {
-                   list ($host, $port) = explode(':', $server); 
+                   list ($host, $port, $secret) = explode(':', $server); 
                    echo "<li>" . __("Server: ",'wp-varnish') . $host . "<br/>" . __("Port: ",'wp-varnish') . $port . "</li>";
                 }
                 echo "</ul>";
@@ -226,15 +238,17 @@ class WPVarnish {
         <tr valign="top">
             <th scope="row"><?php echo __("Varnish Administration IP Address",'wp-varnish'); ?></th>
             <th scope="row"><?php echo __("Varnish Administration Port",'wp-varnish'); ?></th>
+            <th scope="row"><?php echo __("Varnish Secret",'wp-varnish'); ?></th>
         </tr>
         <script>
         <?php
           $addrs = get_option($this->wpv_addr_optname);
           $ports = get_option($this->wpv_port_optname);
+          $secrets = get_option($this->wpv_secret_optname);
           echo "rowCount = $i\n";
           for ($i = 0; $i < count ($addrs); $i++) {
              // let's center the row creation in one spot, in javascript
-             echo "addRow('form-table', $i, '$addrs[$i]', $ports[$i]);\n";
+             echo "addRow('form-table', $i, '$addrs[$i]', $ports[$i], '$secrets[$i]');\n";
         } ?>
         </script>
 	</table>
@@ -279,6 +293,7 @@ class WPVarnish {
     } else {
        $wpv_purgeaddr = get_option($this->wpv_addr_optname);
        $wpv_purgeport = get_option($this->wpv_port_optname);
+       $wpv_secret = get_option($this->wpv_secret_optname);
     }
 
     $wpv_timeout = get_option($this->wpv_timeout_optname);
@@ -290,24 +305,47 @@ class WPVarnish {
     $wpv_blogaddr = preg_replace($wpv_replace_wpurl, "$2", $wpv_wpurl);
     $wpv_url = $wpv_blogaddr . $wpv_url;
 
-          echo "ADMIN PORT";
     for ($i = 0; $i < count ($wpv_purgeaddr); $i++) {
       $varnish_sock = fsockopen($wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, $wpv_timeout);
       if (!$varnish_sock) {
         error_log("wp-varnish error: $errstr ($errno)");
-      } else {
-        # use admin port instead of PURGE?
-        if($wpv_use_adminport) {
-          $out = "purge req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
-	} else {
-          $out = "PURGE $wpv_url HTTP/1.0\r\n";
-          $out .= "Host: $wpv_host\r\n";
-          $out .= "Connection: Close\r\n\r\n";
-        }
-        fwrite($varnish_sock, $out);
-        fclose($varnish_sock);
+        return;
       }
+
+      if($wpv_use_adminport) {
+        $buf = fread($varnish_sock, 1024);
+        if(preg_match('/(\w+)\s+Authentication required./', $buf, &$matches)) {
+          # get the secret
+	  $secret = "1beb871d-987a-4bbd-98aa-408e3de596cb";
+          fwrite($varnish_sock, "auth " . $this->WPAuth($matches[1], $secret) . "\n");
+	  $buf = fread($varnish_sock, 1024);
+          if(!preg_match('/^200/', $buf)) {
+            error_log("wp-varnish error: authentication failed using admin port");
+	    fclose($varnish_sock);
+	    return;
+	  }
+        }
+        $out = "purge req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
+      } else {
+        $out = "PURGE $wpv_url HTTP/1.0\r\n";
+        $out .= "Host: $wpv_host\r\n";
+        $out .= "Connection: Close\r\n\r\n";
+      }
+      fwrite($varnish_sock, $out);
+      fclose($varnish_sock);
     }
+  }
+
+  function WPAuth($challenge, $secret) {
+    $ctx = hash_init('sha256');
+    hash_update($ctx, $challenge);
+    hash_update($ctx, "\n");
+    hash_update($ctx, $secret . "\n");
+    hash_update($ctx, $challenge);
+    hash_update($ctx, "\n");
+    $sha256 = hash_final($ctx);
+
+    return $sha256;
   }
 }
 

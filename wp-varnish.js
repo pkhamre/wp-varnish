@@ -2,13 +2,15 @@
 // so we need a base
 var rowCount = 0;
 
-function createRow(tableID, id, addr, port) {
+function createRow(tableID, id, addr, port, secret) {
 	var row = document.createElement ('tr');
 	var td1 = document.createElement ('td');
 	var td2 = document.createElement ('td');
 	var td3 = document.createElement ('td');
+	var td4 = document.createElement ('td');
 	var wpv_addr = document.createElement ('input');
 	var wpv_port = document.createElement ('input');
+	var wpv_secret = document.createElement ('input');
 	var dRow = document.createElement ('input');
 
 	wpv_addr.className = "regular-text";
@@ -23,6 +25,12 @@ function createRow(tableID, id, addr, port) {
 	wpv_port.name = "wpvarnish_port[]";
 	wpv_port.value = port || "";
 
+	wpv_secret.className = "regular-text";
+	wpv_secret.type = "text";
+	wpv_secret.id = id;
+	wpv_secret.name = "wpvarnish_secret[]";
+	wpv_secret.value = secret || "";
+
 	dRow.className = "";
 	dRow.type = "button";
 	dRow.name = "deleteRow";
@@ -32,19 +40,21 @@ function createRow(tableID, id, addr, port) {
 
 	td1.appendChild (wpv_addr);
 	td2.appendChild (wpv_port);
-	td3.appendChild (dRow);
+	td3.appendChild (wpv_secret);
+	td4.appendChild (dRow);
 	row.appendChild (td1);
 	row.appendChild (td2);
 	row.appendChild (td3);
+	row.appendChild (td4);
 
 	return row;
 }
 
-function addRow(tableID, id, addr, port) {
+function addRow(tableID, id, addr, port, secret) {
 	var tbody = document.getElementById(tableID).getElementsByTagName ('tbody')[0];
 
 	rowCount++;
-	var row = createRow(tableID, id, addr, port);
+	var row = createRow(tableID, id, addr, port, secret);
 
 	tbody.appendChild (row);
 }
