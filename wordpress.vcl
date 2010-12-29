@@ -30,7 +30,7 @@ sub vcl_recv {
     return (pass);
   }
 
-  if (req.url ~ "wp-(login|admin)") {
+  if (req.url ~ "wp-(login|admin)" || req.url ~ "preview=true") {
     return (pass);
   }
 
@@ -39,7 +39,7 @@ sub vcl_recv {
 }
 
 sub vcl_fetch {
-  if (req.url ~ "wp-(login|admin)") {
+  if (req.url ~ "wp-(login|admin)" || req.url ~ "preview=true") {
     return (pass);
   }
 
