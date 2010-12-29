@@ -150,7 +150,9 @@ class WPVarnish {
   }
 
   function WPVarnishAdminMenu() {
-    add_options_page(__('WP-Varnish Configuration','wp-varnish'), 'WP-Varnish', 1, 'WPVarnish', array(&$this, 'WPVarnishAdmin'));
+    if (!defined('VARNISH_HIDE_ADMINMENU')) {
+      add_options_page(__('WP-Varnish Configuration','wp-varnish'), 'WP-Varnish', 1, 'WPVarnish', array(&$this, 'WPVarnishAdmin'));
+    }
   }
 
   // WpVarnishAdmin - Draw the administration interface.
