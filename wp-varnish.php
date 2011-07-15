@@ -100,7 +100,7 @@ class WPVarnish {
   }
 
   function WPVarnishLocalization() {
-    load_plugin_textdomain('wp-varnish',false,'wp-varnish/lang');
+    load_plugin_textdomain('wp-varnish', false, dirname(plugin_basename( __FILE__ ) ) . '/lang/');
   }
 
   function WPVarnishPurgeCommonObjects() {
@@ -214,7 +214,7 @@ class WPVarnish {
          $wpv_use_adminport_optval = get_option($this->wpv_use_adminport_optname);
     ?>
     <div class="wrap">
-      <script type="text/javascript" src="<?php echo get_option('siteurl'); ?>/wp-content/plugins/wp-varnish/wp-varnish.js"></script>
+      <script type="text/javascript" src="<?php echo plugins_url('wp-varnish.js', __FILE__ ); ?>"></script>
       <h2><?php echo __("WordPress Varnish Administration",'wp-varnish'); ?></h2>
       <h3><?php echo __("IP address and port configuration",'wp-varnish'); ?></h3>
       <form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
