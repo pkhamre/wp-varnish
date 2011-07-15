@@ -124,7 +124,7 @@ class WPVarnish {
   // the location path to the object that will be purged based on the permalink.
   function WPVarnishPurgePost($wpv_postid) {
     $wpv_url = get_permalink($wpv_postid);
-    $wpv_permalink = str_replace(get_bloginfo('wpurl'),"",$wpv_url);
+    $wpv_permalink = str_replace(get_option('siteurl'),"",$wpv_url);
 
     $this->WPVarnishPurgeObject($wpv_permalink);
   }
@@ -302,8 +302,8 @@ class WPVarnish {
     $wpv_timeout = get_option($this->wpv_timeout_optname);
     $wpv_use_adminport = get_option($this->wpv_use_adminport_optname);
 
-    $wpv_wpurl = get_bloginfo('wpurl');
-    $wpv_replace_wpurl = '/^http:\/\/([^\/]+)(.*)/i';
+    $wpv_wpurl = get_option('siteurl');
+    $wpv_replace_wpurl = '/^https?:\/\/([^\/]+)(.*)/i';
     $wpv_host = preg_replace($wpv_replace_wpurl, "$1", $wpv_wpurl);
     $wpv_blogaddr = preg_replace($wpv_replace_wpurl, "$2", $wpv_wpurl);
     $wpv_url = $wpv_blogaddr . $wpv_url;
