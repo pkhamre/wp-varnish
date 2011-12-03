@@ -319,7 +319,7 @@ class WPVarnish {
         $buf = fread($varnish_sock, 1024);
         if(preg_match('/(\w+)\s+Authentication required./', $buf, &$matches)) {
           # get the secret
-	  $secret = "1beb871d-987a-4bbd-98aa-408e3de596cb";
+          $secret = $wpv_secret[0];
           fwrite($varnish_sock, "auth " . $this->WPAuth($matches[1], $secret) . "\n");
 	  $buf = fread($varnish_sock, 1024);
           if(!preg_match('/^200/', $buf)) {
