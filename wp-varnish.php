@@ -99,7 +99,7 @@ class WPVarnish {
     add_action('deleted_post', array(&$this, 'WPVarnishPurgeCommonObjects'), 99);
 
     // When xmlRPC call is made
-    add_action('xmlrpc_call'),array(&$this, 'WPVarnishPurgeAll'), 99);
+    add_action('xmlrpc_call',array(&$this, 'WPVarnishPurgeAll'), 99);
   }
 
   function WPVarnishLocalization() {
