@@ -12,8 +12,7 @@ sub vcl_recv {
     if(!client.ip ~ purge) {
       error 405 "Not allowed.";
     }
-
-    purge("req.url ~ ^" req.url "$ && req.http.host == "req.http.host);
+    return(lookup);
   }
 
   if (req.request != "GET" &&
@@ -38,9 +37,23 @@ sub vcl_recv {
   return (lookup);
 }
 
+sub vcl_hit {
+  if (req.request == "PURGE") {
+    purge;
+    error 200 "Purged.";
+  }
+}
+
+sub vcl_miss {
+  if (req.request == "PURGE") {
+    purge;
+    error 200 "Purged.";
+  }
+}
+
 sub vcl_fetch {
   if (req.url ~ "wp-(login|admin)" || req.url ~ "preview=true") {
-    return (pass);
+    return (hit_for_pass);
   }
 
   set beresp.ttl = 24h;
