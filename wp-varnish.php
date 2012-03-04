@@ -38,6 +38,7 @@ class WPVarnish {
     $this->wpv_port_optname = "wpvarnish_port";
     $this->wpv_secret_optname = "wpvarnish_secret";
     $this->wpv_timeout_optname = "wpvarnish_timeout";
+    $this->wpvarnish_purge_url_optname = "wpvarnish_purge_url";
     $this->wpv_update_pagenavi_optname = "wpvarnish_update_pagenavi";
     $this->wpv_update_commentnavi_optname = "wpvarnish_update_commentnavi";
     $this->wpv_use_adminport_optname = "wpvarnish_use_adminport";
@@ -123,6 +124,12 @@ class WPVarnish {
     $this->WPVarnishPurgeObject('/(.*)');
   }
 
+  // WPVarnishPurgeURL - Using a URL, clear the cache
+  function WPVarnishPurgeURL($wpv_purl) {
+    $wpv_purl = str_replace(get_option('siteurl'),"",$wpv_purl);
+    $this->WPVarnishPurgeObject($wpv_purl);
+  }
+
   // WPVarnishPurgePost - Takes a post id (number) as an argument and generates
   // the location path to the object that will be purged based on the permalink.
   function WPVarnishPurgePost($wpv_postid) {
@@ -202,6 +209,10 @@ class WPVarnish {
              }
           }
 
+          if (isset($_POST['wpvarnish_purge_url_submit'])) {
+              $this->WPVarnishPurgeURL($_POST["$this->wpvarnish_purge_url_optname"]);
+          }
+
           if (isset($_POST['wpvarnish_clear_blog_cache']))
              $this->WPVarnishPurgeAll();
 
@@ -278,6 +289,11 @@ class WPVarnish {
       <p><input type="checkbox" name="wpvarnish_update_commentnavi" value="1" <?php if ($wpv_update_commentnavi_optval == 1) echo 'checked '?>/> <?php echo __("Also purge all comment navigation (experimental, use carefully, it will include a bit more load on varnish servers.)",'wp-varnish'); ?></p>
 
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __("Save Changes",'wp-varnish'); ?>" /></p>
+
+      <p> 
+        Purge a URL:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo get_option('siteurl'); ?>" />
+        <input type="submit" class="button-primary" name="wpvarnish_purge_url_submit" value="<?php echo __("Purge",'wp-varnish'); ?>" />
+      </p>
 
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_clear_blog_cache" value="<?php echo __("Purge All Blog Cache",'wp-varnish'); ?>" /> <?php echo __("Use only if necessary, and carefully as this will include a bit more load on varnish servers.",'wp-varnish'); ?></p>
       </form>
