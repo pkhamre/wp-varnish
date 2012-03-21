@@ -87,6 +87,8 @@ class WPVarnish {
     // When posts/pages are published, edited or deleted
     add_action('edit_post', array(&$this, 'WPVarnishPurgePost'), 99);
     add_action('edit_post', array(&$this, 'WPVarnishPurgeCommonObjects'), 99);
+    add_action('transition_post_status', array(&$this, 'WPVarnishPurgePostStatus'), 99);
+    add_action('transition_post_status', array(&$this, 'WPVarnishPurgeCommonObjectsStatus'), 99);
 
     // When comments are made, edited or deleted
     add_action('comment_post', array(&$this, 'WPVarnishPurgePostComments'),99);
@@ -107,6 +109,10 @@ class WPVarnish {
     load_plugin_textdomain('wp-varnish', false, dirname(plugin_basename( __FILE__ ) ) . '/lang/');
   }
 
+  //wrapper on WPVarnishPurgeCommonObjects for transition_post_status
+  function WPVarnishPurgeCommonObjectsStatus($old, $new, $p) {
+	  $this->WPVarnishPurgeCommonObjects($p->ID);
+  }
   function WPVarnishPurgeCommonObjects() {
     $this->WPVarnishPurgeObject("/");
     $this->WPVarnishPurgeObject("/feed/");
@@ -130,6 +136,10 @@ class WPVarnish {
     $this->WPVarnishPurgeObject($wpv_purl);
   }
 
+  //wrapper on WPVarnishPurgePost for transition_post_status
+  function WPVarnishPurgePostStatus($old, $new, $p) {
+	  $this->WPVarnishPurgePost($p->ID);
+  }
   // WPVarnishPurgePost - Takes a post id (number) as an argument and generates
   // the location path to the object that will be purged based on the permalink.
   function WPVarnishPurgePost($wpv_postid) {
