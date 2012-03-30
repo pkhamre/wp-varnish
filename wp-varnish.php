@@ -381,6 +381,6 @@ class WPVarnish {
   }
 }
 
-$wpvarnish = & new WPVarnish();
+$wpvarnish = new WPVarnish();
 
 ?>
