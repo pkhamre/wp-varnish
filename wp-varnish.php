@@ -42,6 +42,7 @@ class WPVarnish {
     $this->wpv_update_pagenavi_optname = "wpvarnish_update_pagenavi";
     $this->wpv_update_commentnavi_optname = "wpvarnish_update_commentnavi";
     $this->wpv_use_adminport_optname = "wpvarnish_use_adminport";
+    $this->wpv_vversion_optname = "wpvarnish_vversion";
     $wpv_addr_optval = array ("127.0.0.1");
     $wpv_port_optval = array (80);
     $wpv_secret_optval = array ("");
@@ -49,6 +50,7 @@ class WPVarnish {
     $wpv_update_pagenavi_optval = 0;
     $wpv_update_commentnavi_optval = 0;
     $wpv_use_adminport_optval = 0;
+    $wpv_vversion_optval = 2;
 
     if ( (get_option($this->wpv_addr_optname) == FALSE) ) {
       add_option($this->wpv_addr_optname, $wpv_addr_optval, '', 'yes');
@@ -76,6 +78,10 @@ class WPVarnish {
 
     if ( (get_option($this->wpv_use_adminport_optname) == FALSE) ) {
       add_option($this->wpv_use_adminport_optname, $wpv_use_adminport_optval, '', 'yes');
+    }
+
+    if ( (get_option($this->wpv_vversion_optname) == FALSE) ) {
+      add_option($this->wpv_vversion_optname, $wpv_vversion_optval, '', 'yes');
     }
 
     // Localization init
@@ -217,6 +223,12 @@ class WPVarnish {
              } else {
                 update_option($this->wpv_use_adminport_optname, 0);
              }
+
+             if (!empty($_POST["$this->wpv_vversion_optname"])) {
+                $wpv_vversion_optval = $_POST["$this->wpv_vversion_optname"];
+                update_option($this->wpv_vversion_optname, $wpv_vversion_optval);
+             }
+
           }
 
           if (isset($_POST['wpvarnish_purge_url_submit'])) {
@@ -236,6 +248,7 @@ class WPVarnish {
          $wpv_update_pagenavi_optval = get_option($this->wpv_update_pagenavi_optname);
          $wpv_update_commentnavi_optval = get_option($this->wpv_update_commentnavi_optname);
          $wpv_use_adminport_optval = get_option($this->wpv_use_adminport_optname);
+         $wpv_vversion_optval = get_option($this->wpv_vversion_optname);
     ?>
     <div class="wrap">
       <script type="text/javascript" src="<?php echo plugins_url('wp-varnish.js', __FILE__ ); ?>"></script>
@@ -298,6 +311,8 @@ class WPVarnish {
 
       <p><input type="checkbox" name="wpvarnish_update_commentnavi" value="1" <?php if ($wpv_update_commentnavi_optval == 1) echo 'checked '?>/> <?php echo __("Also purge all comment navigation (experimental, use carefully, it will include a bit more load on varnish servers.)",'wp-varnish'); ?></p>
 
+      <p>Varnish Version: <select name="wpvarnish_vversion"><option value="2" <?php if ($wpv_vversion_optval == 2) echo 'selected '?>/> 2 </option><option value="3" <?php if ($wpv_vversion_optval == 3) echo 'selected '?>/> 3 </option></select></p>
+
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __("Save Changes",'wp-varnish'); ?>" /></p>
 
       <p> 
@@ -330,6 +345,7 @@ class WPVarnish {
 
     $wpv_timeout = get_option($this->wpv_timeout_optname);
     $wpv_use_adminport = get_option($this->wpv_use_adminport_optname);
+    $wpv_vversion_optval = get_option($this->wpv_vversion_optname);
 
     $wpv_wpurl = get_option('siteurl');
     $wpv_replace_wpurl = '/^https?:\/\/([^\/]+)(.*)/i';
@@ -348,7 +364,7 @@ class WPVarnish {
         $buf = fread($varnish_sock, 1024);
         if(preg_match('/(\w+)\s+Authentication required./', $buf, &$matches)) {
           # get the secret
-          $secret = $wpv_secret[0];
+          $secret = $wpv_secret[$i];
           fwrite($varnish_sock, "auth " . $this->WPAuth($matches[1], $secret) . "\n");
 	  $buf = fread($varnish_sock, 1024);
           if(!preg_match('/^200/', $buf)) {
@@ -357,7 +373,11 @@ class WPVarnish {
 	    return;
 	  }
         }
-        $out = "purge req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
+        if ($wpv_vversion_optval == 3) {
+            $out = "ban req.http.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
+          } else {
+            $out = "purge req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
+          }
       } else {
         $out = "PURGE $wpv_url HTTP/1.0\r\n";
         $out .= "Host: $wpv_host\r\n";
