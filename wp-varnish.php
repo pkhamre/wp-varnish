@@ -374,7 +374,7 @@ class WPVarnish {
 	  }
         }
         if ($wpv_vversion_optval == 3) {
-            $out = "ban req.http.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
+            $out = "ban req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
           } else {
             $out = "purge req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
           }
