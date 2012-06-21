@@ -138,7 +138,7 @@ class WPVarnish {
 
   // WPVarnishPurgeURL - Using a URL, clear the cache
   function WPVarnishPurgeURL($wpv_purl) {
-    $wpv_purl = str_replace(get_option('siteurl'),"",$wpv_purl);
+    $wpv_purl = str_replace(get_bloginfo('url'),"",$wpv_purl);
     $this->WPVarnishPurgeObject($wpv_purl);
   }
 
@@ -150,7 +150,7 @@ class WPVarnish {
   // the location path to the object that will be purged based on the permalink.
   function WPVarnishPurgePost($wpv_postid) {
     $wpv_url = get_permalink($wpv_postid);
-    $wpv_permalink = str_replace(get_option('siteurl'),"",$wpv_url);
+    $wpv_permalink = str_replace(get_bloginfo('url'),"",$wpv_url);
 
     $this->WPVarnishPurgeObject($wpv_permalink);
   }
@@ -316,7 +316,7 @@ class WPVarnish {
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __("Save Changes",'wp-varnish'); ?>" /></p>
 
       <p> 
-        Purge a URL:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo get_option('siteurl'); ?>" />
+        Purge a URL:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo get_bloginfo('url'); ?>" />
         <input type="submit" class="button-primary" name="wpvarnish_purge_url_submit" value="<?php echo __("Purge",'wp-varnish'); ?>" />
       </p>
 
@@ -347,7 +347,7 @@ class WPVarnish {
     $wpv_use_adminport = get_option($this->wpv_use_adminport_optname);
     $wpv_vversion_optval = get_option($this->wpv_vversion_optname);
 
-    $wpv_wpurl = get_option('siteurl');
+    $wpv_wpurl = get_bloginfo('url');
     $wpv_replace_wpurl = '/^https?:\/\/([^\/]+)(.*)/i';
     $wpv_host = preg_replace($wpv_replace_wpurl, "$1", $wpv_wpurl);
     $wpv_blogaddr = preg_replace($wpv_replace_wpurl, "$2", $wpv_wpurl);
