@@ -85,30 +85,30 @@ class WPVarnish {
     }
 
     // Localization init
-    add_action('init', array(&$this, 'WPVarnishLocalization'));
+    add_action('init', array($this, 'WPVarnishLocalization'));
 
     // Add Administration Interface
-    add_action('admin_menu', array(&$this, 'WPVarnishAdminMenu'));
+    add_action('admin_menu', array($this, 'WPVarnishAdminMenu'));
 
     // When posts/pages are published, edited or deleted
-    add_action('edit_post', array(&$this, 'WPVarnishPurgePost'), 99);
-    add_action('edit_post', array(&$this, 'WPVarnishPurgeCommonObjects'), 99);
-    add_action('transition_post_status', array(&$this, 'WPVarnishPurgePostStatus'), 99);
-    add_action('transition_post_status', array(&$this, 'WPVarnishPurgeCommonObjectsStatus'), 99);
+    add_action('edit_post', array($this, 'WPVarnishPurgePost'), 99);
+    add_action('edit_post', array($this, 'WPVarnishPurgeCommonObjects'), 99);
+    add_action('transition_post_status', array($this, 'WPVarnishPurgePostStatus'), 99);
+    add_action('transition_post_status', array($this, 'WPVarnishPurgeCommonObjectsStatus'), 99);
 
     // When comments are made, edited or deleted
-    add_action('comment_post', array(&$this, 'WPVarnishPurgePostComments'),99);
-    add_action('edit_comment', array(&$this, 'WPVarnishPurgePostComments'),99);
-    add_action('trashed_comment', array(&$this, 'WPVarnishPurgePostComments'),99);
-    add_action('untrashed_comment', array(&$this, 'WPVarnishPurgePostComments'),99);
-    add_action('deleted_comment', array(&$this, 'WPVarnishPurgePostComments'),99);
+    add_action('comment_post', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('edit_comment', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('trashed_comment', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('untrashed_comment', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('deleted_comment', array($this, 'WPVarnishPurgePostComments'),99);
 
     // When posts or pages are deleted
-    add_action('deleted_post', array(&$this, 'WPVarnishPurgePost'), 99);
-    add_action('deleted_post', array(&$this, 'WPVarnishPurgeCommonObjects'), 99);
+    add_action('deleted_post', array($this, 'WPVarnishPurgePost'), 99);
+    add_action('deleted_post', array($this, 'WPVarnishPurgeCommonObjects'), 99);
 
     // When xmlRPC call is made
-    add_action('xmlrpc_call',array(&$this, 'WPVarnishPurgeAll'), 99);
+    add_action('xmlrpc_call',array($this, 'WPVarnishPurgeAll'), 99);
   }
 
   function WPVarnishLocalization() {
@@ -177,7 +177,7 @@ class WPVarnish {
 
   function WPVarnishAdminMenu() {
     if (!defined('VARNISH_HIDE_ADMINMENU')) {
-      add_options_page(__('WP-Varnish Configuration','wp-varnish'), 'WP-Varnish', 1, 'WPVarnish', array(&$this, 'WPVarnishAdmin'));
+      add_options_page(__('WP-Varnish Configuration','wp-varnish'), 'WP-Varnish', 1, 'WPVarnish', array($this, 'WPVarnishAdmin'));
     }
   }
 
@@ -315,7 +315,7 @@ class WPVarnish {
 
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __("Save Changes",'wp-varnish'); ?>" /></p>
 
-      <p> 
+      <p>
         Purge a URL:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo get_bloginfo('url'); ?>" />
         <input type="submit" class="button-primary" name="wpvarnish_purge_url_submit" value="<?php echo __("Purge",'wp-varnish'); ?>" />
       </p>
@@ -362,7 +362,7 @@ class WPVarnish {
 
       if($wpv_use_adminport) {
         $buf = fread($varnish_sock, 1024);
-        if(preg_match('/(\w+)\s+Authentication required./', $buf, &$matches)) {
+        if(preg_match('/(\w+)\s+Authentication required./', $buf, $matches)) {
           # get the secret
           $secret = $wpv_secret[$i];
           fwrite($varnish_sock, "auth " . $this->WPAuth($matches[1], $secret) . "\n");
