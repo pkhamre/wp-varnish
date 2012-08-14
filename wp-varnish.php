@@ -93,8 +93,8 @@ class WPVarnish {
     // When posts/pages are published, edited or deleted
     add_action('edit_post', array($this, 'WPVarnishPurgePost'), 99);
     add_action('edit_post', array($this, 'WPVarnishPurgeCommonObjects'), 99);
-    add_action('transition_post_status', array($this, 'WPVarnishPurgePostStatus'), 99);
-    add_action('transition_post_status', array($this, 'WPVarnishPurgeCommonObjectsStatus'), 99);
+    add_action('transition_post_status', array($this, 'WPVarnishPurgePostStatus'), 99, 3);
+    add_action('transition_post_status', array($this, 'WPVarnishPurgeCommonObjectsStatus'), 99, 3);
 
     // When comments are made, edited or deleted
     add_action('comment_post', array($this, 'WPVarnishPurgePostComments'),99);
