@@ -258,12 +258,15 @@ class WPVarnish {
     <?php
           // Can't be edited - already defined in wp-config.php
           global $varnish_servers;
+          global $varnish_version;
           if (is_array($varnish_servers)) {
              echo "<p>" . __("These values can't be edited since there's a global configuration located in <em>wp-config.php</em>. If you want to change these settings, please update the file or contact the administrator.",'wp-varnish') . "</p>\n";
              // Also, if defined, show the varnish servers configured (VARNISH_SHOWCFG)
              if (defined('VARNISH_SHOWCFG')) {
                 echo "<h3>" . __("Current configuration:",'wp-varnish') . "</h3>\n";
                 echo "<ul>";
+                if ( isset($varnish_version) && $varnish_version )
+                   echo "<li>" . __("Version: ",'wp-varnish') . $varnish_version . "</li>";
                 foreach ($varnish_servers as $server) {
                    list ($host, $port, $secret) = explode(':', $server);
                    echo "<li>" . __("Server: ",'wp-varnish') . $host . "<br/>" . __("Port: ",'wp-varnish') . $port . "</li>";
