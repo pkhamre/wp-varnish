@@ -345,7 +345,11 @@ class WPVarnish {
 
     $wpv_timeout = get_option($this->wpv_timeout_optname);
     $wpv_use_adminport = get_option($this->wpv_use_adminport_optname);
-    $wpv_vversion_optval = get_option($this->wpv_vversion_optname);
+    global $varnish_version;
+    if ( isset($varnish_version) && in_array($varnish_version, array(2,3)) )
+       $wpv_vversion_optval = $varnish_version;
+    else
+       $wpv_vversion_optval = get_option($this->wpv_vversion_optname);
 
     $wpv_wpurl = get_bloginfo('url');
     $wpv_replace_wpurl = '/^https?:\/\/([^\/]+)(.*)/i';
