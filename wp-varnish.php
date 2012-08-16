@@ -85,30 +85,30 @@ class WPVarnish {
     }
 
     // Localization init
-    add_action('init', array(&$this, 'WPVarnishLocalization'));
+    add_action('init', array($this, 'WPVarnishLocalization'));
 
     // Add Administration Interface
-    add_action('admin_menu', array(&$this, 'WPVarnishAdminMenu'));
+    add_action('admin_menu', array($this, 'WPVarnishAdminMenu'));
 
     // When posts/pages are published, edited or deleted
-    add_action('edit_post', array(&$this, 'WPVarnishPurgePost'), 99);
-    add_action('edit_post', array(&$this, 'WPVarnishPurgeCommonObjects'), 99);
-    add_action('transition_post_status', array(&$this, 'WPVarnishPurgePostStatus'), 99);
-    add_action('transition_post_status', array(&$this, 'WPVarnishPurgeCommonObjectsStatus'), 99);
+    add_action('edit_post', array($this, 'WPVarnishPurgePost'), 99);
+    add_action('edit_post', array($this, 'WPVarnishPurgeCommonObjects'), 99);
+    add_action('transition_post_status', array($this, 'WPVarnishPurgePostStatus'), 99, 3);
+    add_action('transition_post_status', array($this, 'WPVarnishPurgeCommonObjectsStatus'), 99, 3);
 
     // When comments are made, edited or deleted
-    add_action('comment_post', array(&$this, 'WPVarnishPurgePostComments'),99);
-    add_action('edit_comment', array(&$this, 'WPVarnishPurgePostComments'),99);
-    add_action('trashed_comment', array(&$this, 'WPVarnishPurgePostComments'),99);
-    add_action('untrashed_comment', array(&$this, 'WPVarnishPurgePostComments'),99);
-    add_action('deleted_comment', array(&$this, 'WPVarnishPurgePostComments'),99);
+    add_action('comment_post', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('edit_comment', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('trashed_comment', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('untrashed_comment', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('deleted_comment', array($this, 'WPVarnishPurgePostComments'),99);
 
     // When posts or pages are deleted
-    add_action('deleted_post', array(&$this, 'WPVarnishPurgePost'), 99);
-    add_action('deleted_post', array(&$this, 'WPVarnishPurgeCommonObjects'), 99);
+    add_action('deleted_post', array($this, 'WPVarnishPurgePost'), 99);
+    add_action('deleted_post', array($this, 'WPVarnishPurgeCommonObjects'), 99);
 
     // When xmlRPC call is made
-    add_action('xmlrpc_call',array(&$this, 'WPVarnishPurgeAll'), 99);
+    add_action('xmlrpc_call',array($this, 'WPVarnishPurgeAll'), 99);
   }
 
   function WPVarnishLocalization() {
@@ -177,7 +177,7 @@ class WPVarnish {
 
   function WPVarnishAdminMenu() {
     if (!defined('VARNISH_HIDE_ADMINMENU')) {
-      add_options_page(__('WP-Varnish Configuration','wp-varnish'), 'WP-Varnish', 1, 'WPVarnish', array(&$this, 'WPVarnishAdmin'));
+      add_options_page(__('WP-Varnish Configuration','wp-varnish'), 'WP-Varnish', 1, 'WPVarnish', array($this, 'WPVarnishAdmin'));
     }
   }
 
@@ -258,12 +258,15 @@ class WPVarnish {
     <?php
           // Can't be edited - already defined in wp-config.php
           global $varnish_servers;
+          global $varnish_version;
           if (is_array($varnish_servers)) {
              echo "<p>" . __("These values can't be edited since there's a global configuration located in <em>wp-config.php</em>. If you want to change these settings, please update the file or contact the administrator.",'wp-varnish') . "</p>\n";
              // Also, if defined, show the varnish servers configured (VARNISH_SHOWCFG)
              if (defined('VARNISH_SHOWCFG')) {
                 echo "<h3>" . __("Current configuration:",'wp-varnish') . "</h3>\n";
                 echo "<ul>";
+                if ( isset($varnish_version) && $varnish_version )
+                   echo "<li>" . __("Version: ",'wp-varnish') . $varnish_version . "</li>";
                 foreach ($varnish_servers as $server) {
                    list ($host, $port, $secret) = explode(':', $server);
                    echo "<li>" . __("Server: ",'wp-varnish') . $host . "<br/>" . __("Port: ",'wp-varnish') . $port . "</li>";
@@ -315,7 +318,7 @@ class WPVarnish {
 
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __("Save Changes",'wp-varnish'); ?>" /></p>
 
-      <p> 
+      <p>
         Purge a URL:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo get_bloginfo('url'); ?>" />
         <input type="submit" class="button-primary" name="wpvarnish_purge_url_submit" value="<?php echo __("Purge",'wp-varnish'); ?>" />
       </p>
@@ -345,7 +348,11 @@ class WPVarnish {
 
     $wpv_timeout = get_option($this->wpv_timeout_optname);
     $wpv_use_adminport = get_option($this->wpv_use_adminport_optname);
-    $wpv_vversion_optval = get_option($this->wpv_vversion_optname);
+    global $varnish_version;
+    if ( isset($varnish_version) && in_array($varnish_version, array(2,3)) )
+       $wpv_vversion_optval = $varnish_version;
+    else
+       $wpv_vversion_optval = get_option($this->wpv_vversion_optname);
 
     $wpv_wpurl = get_bloginfo('url');
     $wpv_replace_wpurl = '/^https?:\/\/([^\/]+)(.*)/i';
@@ -362,7 +369,7 @@ class WPVarnish {
 
       if($wpv_use_adminport) {
         $buf = fread($varnish_sock, 1024);
-        if(preg_match('/(\w+)\s+Authentication required./', $buf, &$matches)) {
+        if(preg_match('/(\w+)\s+Authentication required./', $buf, $matches)) {
           # get the secret
           $secret = $wpv_secret[$i];
           fwrite($varnish_sock, "auth " . $this->WPAuth($matches[1], $secret) . "\n");
