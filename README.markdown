@@ -6,7 +6,7 @@ WordPress Varnish
 * Tags: cache, caching, performance, varnish, purge, speed
 * Requires at least: 2.9.2
 * Tested up to: 3.5.1
-* Stable tag: 0.3
+* Stable tag: 0.4
 
 WordPress Varnish is a simple plugin that purges new and edited content.
 
@@ -77,6 +77,14 @@ Screenshots
 
 Changelog
 ---------
+
+### 0.4
+
+* added rule to skip caching 404s in vcl
+* WordPress-Varnish UserAgent as per ticket #23
+* document use of mod_rpaf or code fix for remote IP, Ticket #36
+* clean data rather than reject to fix ticket #31
+* added plugins_loaded hook to fix ticket #12
 
 ### 0.3
 
