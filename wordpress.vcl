@@ -52,6 +52,10 @@ sub vcl_miss {
 }
 
 sub vcl_fetch {
+  if (beresp.status == 404) {
+    set beresp.ttl = 0m;
+    return(hit_for_pass);
+  }
   if (req.url ~ "wp-(login|admin)" || req.url ~ "preview=true") {
     return (hit_for_pass);
   }
