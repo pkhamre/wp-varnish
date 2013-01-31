@@ -2,7 +2,7 @@
 /*
 Plugin Name: WordPress Varnish
 Plugin URI: http://github.com/pkhamre/wp-varnish
-Version: 0.3
+Version: 0.4
 Author: <a href="http://github.com/pkhamre/">Pål-Kristian Hamre</a>
 Description: A plugin for purging Varnish cache when content is published or edited.
 
@@ -109,6 +109,9 @@ class WPVarnish {
 
     // When xmlRPC call is made
     add_action('xmlrpc_call',array($this, 'WPVarnishPurgeAll'), 99);
+
+    // When a new plugin is loaded
+    add_action('plugins_loaded',array($this, 'WPVarnishPurgeAll'), 99);
   }
 
   function WPVarnishLocalization() {
@@ -186,6 +189,8 @@ class WPVarnish {
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
        if (current_user_can('administrator')) {
           if (isset($_POST['wpvarnish_admin'])) {
+             cleanSubmittedData('wpvarnish_port', '/[^0-9]/');
+             cleanSubmittedData('wpvarnish_addr', '/[^0-9.]/');
              if (!empty($_POST["$this->wpv_addr_optname"])) {
                 $wpv_addr_optval = $_POST["$this->wpv_addr_optname"];
                 update_option($this->wpv_addr_optname, $wpv_addr_optval);
@@ -388,6 +393,7 @@ class WPVarnish {
       } else {
         $out = "PURGE $wpv_url HTTP/1.0\r\n";
         $out .= "Host: $wpv_host\r\n";
+        $out .= "User-Agent: WordPress-Varnish plugin\r\n";
         $out .= "Connection: Close\r\n\r\n";
       }
       fwrite($varnish_sock, $out);
@@ -410,4 +416,13 @@ class WPVarnish {
 
 $wpvarnish = new WPVarnish();
 
+// Helper functions
+function cleanSubmittedData($varname, $regexp) {
+// FIXME: should do this in the admin console js, not here   
+// normally I hate cleaning data and would rather validate before submit
+// but, this fixes the problem in the cleanest method for now
+  foreach ($_POST[$varname] as $key=>$value) {
+    $_POST[$varname][$key] = preg_replace($regexp,'',$value);
+  }
+}
 ?>
