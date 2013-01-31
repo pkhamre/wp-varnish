@@ -109,6 +109,9 @@ class WPVarnish {
 
     // When xmlRPC call is made
     add_action('xmlrpc_call',array($this, 'WPVarnishPurgeAll'), 99);
+
+    // When a new plugin is loaded
+    add_action('plugins_loaded',array($this, 'WPVarnishPurgeAll'), 99);
   }
 
   function WPVarnishLocalization() {
