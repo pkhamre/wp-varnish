@@ -5,8 +5,8 @@ WordPress Varnish
 * Donate link: http://github.com/pkhamre/wp-varnish
 * Tags: cache, caching, performance, varnish, purge, speed
 * Requires at least: 2.9.2
-* Tested up to: 2.9.2
-* Stable tag: 0.3
+* Tested up to: 3.5.1
+* Stable tag: 0.4
 
 WordPress Varnish is a simple plugin that purges new and edited content.
 
@@ -53,6 +53,23 @@ The varnish servers array will configure multiple servers for sending the
 purges. If VARNISH_SHOWCFG is defined, configuration will be shown to all
 users who access the plugin configuration page (but they can't edit it).
 
+### My Plugins are seeing the Varnish server's IP rather than the websurfer IP
+
+You could install Apache's mod_rpaf module: http://stderr.net/apache/rpaf/
+
+or, in wp-config.php, near the top, put the following code:
+
+    $temp_ip = explode(',', isset($_SERVER['HTTP_X_FORWARDED_FOR'])
+    ? $_SERVER['HTTP_X_FORWARDED_FOR'] :
+    (isset($_SERVER['HTTP_CLIENT_IP']) ?
+    $_SERVER['HTTP_CLIENT_IP'] : $_SERVER['REMOTE_ADDR']));
+    $remote_addr = trim($temp_ip[0]);
+    $_SERVER['REMOTE_ADDR'] = preg_replace('/[^0-9.:]/', '', $remote_addr );
+
+The code takes some of the common headers and replaces the REMOTE_ADDR
+variable, allowing plugins that use the surfer's IP address to see the
+surfer's IP rather than the server's IP.
+
 Screenshots
 -----------
 
@@ -60,6 +77,14 @@ Screenshots
 
 Changelog
 ---------
+
+### 0.4
+
+* added rule to skip caching 404s in vcl
+* WordPress-Varnish UserAgent as per ticket #23
+* document use of mod_rpaf or code fix for remote IP, Ticket #36
+* clean data rather than reject to fix ticket #31
+* added plugins_loaded hook to fix ticket #12
 
 ### 0.3
 
