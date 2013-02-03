@@ -293,7 +293,7 @@ class WPVarnish {
           $addrs = get_option($this->wpv_addr_optname);
           $ports = get_option($this->wpv_port_optname);
           $secrets = get_option($this->wpv_secret_optname);
-          echo "rowCount = $i\n";
+          //echo "rowCount = $i\n";
           for ($i = 0; $i < count ($addrs); $i++) {
              // let's center the row creation in one spot, in javascript
              echo "addRow('form-table', $i, '$addrs[$i]', $ports[$i], '$secrets[$i]');\n";
