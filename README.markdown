@@ -78,6 +78,9 @@ Screenshots
 Changelog
 ---------
 
+### 0.5
+* New .vcl to fix purge as per Issue #39, Thanks Ed Cooper
+
 ### 0.4
 
 * added rule to skip caching 404s in vcl

@@ -391,7 +391,7 @@ class WPVarnish {
             $out = "purge req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
           }
       } else {
-        $out = "PURGE $wpv_url HTTP/1.0\r\n";
+        $out = "BAN $wpv_url HTTP/1.0\r\n";
         $out .= "Host: $wpv_host\r\n";
         $out .= "User-Agent: WordPress-Varnish plugin\r\n";
         $out .= "Connection: Close\r\n\r\n";
