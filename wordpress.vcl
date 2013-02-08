@@ -8,11 +8,12 @@ acl purge {
 }
 
 sub vcl_recv {
-  if (req.request == "PURGE") {
+  if (req.request == "BAN") {
     if(!client.ip ~ purge) {
       error 405 "Not allowed.";
     }
-    return(lookup);
+    ban("req.url ~ "+req.url+" && req.http.host == "+req.http.host);
+    error 200 "Banned.";
   }
 
   if (req.request != "GET" &&
@@ -35,20 +36,6 @@ sub vcl_recv {
 
   remove req.http.cookie;
   return (lookup);
-}
-
-sub vcl_hit {
-  if (req.request == "PURGE") {
-    purge;
-    error 200 "Purged.";
-  }
-}
-
-sub vcl_miss {
-  if (req.request == "PURGE") {
-    purge;
-    error 200 "Purged.";
-  }
 }
 
 sub vcl_fetch {
