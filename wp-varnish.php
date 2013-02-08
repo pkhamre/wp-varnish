@@ -2,7 +2,7 @@
 /*
 Plugin Name: WordPress Varnish
 Plugin URI: http://github.com/pkhamre/wp-varnish
-Version: 0.4
+Version: 0.5
 Author: <a href="http://github.com/pkhamre/">Pål-Kristian Hamre</a>
 Description: A plugin for purging Varnish cache when content is published or edited.
 
@@ -391,7 +391,7 @@ class WPVarnish {
             $out = "purge req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
           }
       } else {
-        $out = "PURGE $wpv_url HTTP/1.0\r\n";
+        $out = "BAN $wpv_url HTTP/1.0\r\n";
         $out .= "Host: $wpv_host\r\n";
         $out .= "User-Agent: WordPress-Varnish plugin\r\n";
         $out .= "Connection: Close\r\n\r\n";
