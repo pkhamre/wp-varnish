@@ -2,7 +2,7 @@
 /*
 Plugin Name: WordPress Varnish
 Plugin URI: http://github.com/pkhamre/wp-varnish
-Version: 0.5
+Version: 0.6
 Author: <a href="http://github.com/pkhamre/">Pål-Kristian Hamre</a>
 Description: A plugin for purging Varnish cache when content is published or edited.
 
@@ -111,7 +111,9 @@ class WPVarnish {
     add_action('xmlrpc_call',array($this, 'WPVarnishPurgeAll'), 99);
 
     // When a new plugin is loaded
-    add_action('plugins_loaded',array($this, 'WPVarnishPurgeAll'), 99);
+    // this was added due to Issue #12, but, doesn't do what was intended
+    // commenting this out gets rid of the incessant purging.
+    //add_action('plugins_loaded',array($this, 'WPVarnishPurgeAll'), 99);
   }
 
   function WPVarnishLocalization() {
