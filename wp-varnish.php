@@ -2,7 +2,7 @@
 /*
 Plugin Name: WordPress Varnish
 Plugin URI: http://github.com/pkhamre/wp-varnish
-Version: 0.6
+Version: 0.7
 Author: <a href="http://github.com/pkhamre/">Pål-Kristian Hamre</a>
 Description: A plugin for purging Varnish cache when content is published or edited.
 
@@ -109,6 +109,15 @@ class WPVarnish {
 
     // When xmlRPC call is made
     add_action('xmlrpc_call',array($this, 'WPVarnishPurgeAll'), 99);
+
+    // When a post changes from future to publish, Thanks Marcin Pietrzak
+    add_action('future_to_publish', array($this,
+        'WPVarnishPurgePost'), 99);
+    add_action('future_to_publish', array($this,
+        'WPVarnishPurgePurgeCommonObjects'), 99);
+
+    // When Theme is changed, Thanks dupuis
+    add_action('switch_theme',array($this, 'WPVarnishPurgeAll'), 99);
 
     // When a new plugin is loaded
     // this was added due to Issue #12, but, doesn't do what was intended
