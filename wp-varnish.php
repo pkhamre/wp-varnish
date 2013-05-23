@@ -370,7 +370,12 @@ class WPVarnish {
     else
        $wpv_vversion_optval = get_option($this->wpv_vversion_optname);
 
-    $wpv_wpurl = get_bloginfo('url');
+    // check for domain mapping plugin by donncha
+    if (function_exists('domain_mapping_siteurl')) {
+        $wpv_wpurl = domain_mapping_siteurl('NA');
+    } else {
+        $wpv_wpurl = get_bloginfo('url');
+    }
     $wpv_replace_wpurl = '/^https?:\/\/([^\/]+)(.*)/i';
     $wpv_host = preg_replace($wpv_replace_wpurl, "$1", $wpv_wpurl);
     $wpv_blogaddr = preg_replace($wpv_replace_wpurl, "$2", $wpv_wpurl);
