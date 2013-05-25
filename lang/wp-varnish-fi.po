@@ -1,0 +1,130 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP-Varnish 0.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-05-25 21:31+0200\n"
+"PO-Revision-Date: 2013-05-25 21:32+0200\n"
+"Last-Translator: Loïc Gerbaud <gerbaudloic@gmail.com>\n"
+"Language-Team: Loïc Gerbaud <gerbaudloic@gmail.com>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: __;_;gettext;gettext_noop\n"
+"X-Poedit-Basepath: .\n"
+"X-Generator: Poedit 1.5.5\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../wp-varnish.php:194
+msgid "WP-Varnish Configuration"
+msgstr "WP-Varnish asetukset"
+
+#: ../wp-varnish.php:257
+msgid "Settings Saved!"
+msgstr "Asetukset tallennettu!"
+
+#: ../wp-varnish.php:259
+msgid "You do not have the privileges."
+msgstr "Sinulla ei ole tarvittavia oikeuksia."
+
+#: ../wp-varnish.php:271
+msgid "WordPress Varnish Administration"
+msgstr "WordPress Varnish ylläpito"
+
+#: ../wp-varnish.php:272
+msgid "IP address and port configuration"
+msgstr "IP-osoite ja portti asetukset"
+
+#: ../wp-varnish.php:279
+msgid ""
+"These values can't be edited since there's a global configuration located in "
+"<em>wp-config.php</em>. If you want to change these settings, please update "
+"the file or contact the administrator."
+msgstr ""
+"Näitä arvoja ei voi muokata, koska <em>wp-config.php</em> tiedostossa on "
+"globaali asetus. Jos haluat muuttaa asetuksia, muokkaa tiedostoa tai ota "
+"yhteyttä ylläpitäjään."
+
+#: ../wp-varnish.php:282
+msgid "Current configuration:"
+msgstr "Nykyiset asetukset:"
+
+#: ../wp-varnish.php:285
+msgid "Version: "
+msgstr "Versio:"
+
+#: ../wp-varnish.php:288
+msgid "Server: "
+msgstr "Palvelin :"
+
+#: ../wp-varnish.php:288
+msgid "Port: "
+msgstr "Portti:"
+
+#: ../wp-varnish.php:298
+msgid "Varnish Administration IP Address"
+msgstr "Varnish ylläpidon IP-osoite"
+
+#: ../wp-varnish.php:299
+msgid "Varnish Administration Port"
+msgstr "Varnish ylläpidon portti"
+
+#: ../wp-varnish.php:300
+msgid "Varnish Secret"
+msgstr "Varnish salaisuus"
+
+#: ../wp-varnish.php:319
+msgid "Add one more server"
+msgstr "Lisää uusi palvelin"
+
+#: ../wp-varnish.php:325
+msgid "Timeout"
+msgstr "Aikakatkaisu"
+
+#: ../wp-varnish.php:325
+msgid "seconds"
+msgstr "sekuntia"
+
+#: ../wp-varnish.php:327
+msgid "Use admin port instead of PURGE method."
+msgstr "Käytä ylläpidon porttia PURGE-metodin sijaan."
+
+#: ../wp-varnish.php:329
+msgid ""
+"Also purge all page navigation (experimental, use carefully, it will include "
+"a bit more load on varnish servers.)"
+msgstr ""
+"Tyhjennä myös kaikki sivuvalikot (kokeellinen, käytä harkiten, aiheuttaa "
+"hieman enemmän kuormaa Varnish-palvelimille)"
+
+#: ../wp-varnish.php:331
+msgid ""
+"Also purge all comment navigation (experimental, use carefully, it will "
+"include a bit more load on varnish servers.)"
+msgstr ""
+"Tyhjennä myös kaikki kommenttivalikot (kokeellinen, käytä harkiten, "
+"aiheuttaa hieman enemmän kuormaa Varnish-palvelimille)"
+
+#: ../wp-varnish.php:335
+msgid "Save Changes"
+msgstr "Tallenna muutokset"
+
+#: ../wp-varnish.php:338
+msgid "Purge a URL"
+msgstr "Tyhjennä URL"
+
+#: ../wp-varnish.php:339
+msgid "Purge"
+msgstr "Tyhjennä"
+
+#: ../wp-varnish.php:342
+msgid "Purge All Blog Cache"
+msgstr "Tyhjennä koko sivuston välimuisti"
+
+#: ../wp-varnish.php:342
+msgid ""
+"Use only if necessary, and carefully as this will include a bit more load on "
+"varnish servers."
+msgstr ""
+"Käytä vain jos pakko, sillä tämä aiheuttaa enemmän kuormaa Varnish-"
+"palvelimille."
