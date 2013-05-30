@@ -74,6 +74,8 @@ surfer's IP rather than the server's IP.
 = 0.7 =
 * Added purge when post changes from future to publish, Thanks Marcin Pietrzak
 * Added purge when theme switched, Thanks dupuis
+* Fixed multisite domain mapping purge, Thanks jasonheffner
+* Updated Finnish Translation, Thanks timoleinio
 
 = 0.6 =
 * Removed plugins_loaded action as it doesnt do what was expected re: Issue
