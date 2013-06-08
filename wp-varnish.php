@@ -352,9 +352,10 @@ class WPVarnish {
 
     if (is_array($varnish_servers)) {
        foreach ($varnish_servers as $server) {
-          list ($host, $port) = explode(':', $server);
+          list ($host, $port, $secret) = explode(':', $server);
           $wpv_purgeaddr[] = $host;
           $wpv_purgeport[] = $port;
+          $wpv_secret[] = $secret;
        }
     } else {
        $wpv_purgeaddr = get_option($this->wpv_addr_optname);
