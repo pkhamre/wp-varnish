@@ -284,7 +284,7 @@ class WPVarnish {
                 if ( isset($varnish_version) && $varnish_version )
                    echo "<li>" . __("Version: ",'wp-varnish') . $varnish_version . "</li>";
                 foreach ($varnish_servers as $server) {
-                   list ($host, $port, $secret) = explode(':', $server);
+                   @list ($host, $port, $secret) = explode(':', $server);
                    echo "<li>" . __("Server: ",'wp-varnish') . $host . "<br/>" . __("Port: ",'wp-varnish') . $port . "</li>";
                 }
                 echo "</ul>";
