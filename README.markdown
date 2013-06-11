@@ -6,7 +6,7 @@ WordPress Varnish
 * Tags: cache, caching, performance, varnish, purge, speed
 * Requires at least: 2.9.2
 * Tested up to: 3.5.1
-* Stable tag: 0.7
+* Stable tag: 0.8
 
 WordPress Varnish is a simple plugin that purges new and edited content.
 
@@ -24,7 +24,8 @@ Installation
 
 This section describes how to install the plugin and get it working.
 
-1. Upload `wp-varnish/` to the `/wp-content/plugins/` directory
+1. Install the plugin 'WordPress Varnish' through the 'Plugins' menu in
+WordPress
 2. Activate the plugin through the 'Plugins' menu in WordPress
 
 Frequently Asked Questions
@@ -46,7 +47,7 @@ If you want to configure Varnish servers globally, edit wp-config.php and
 include these lines just before "That's all, stop editing!" message:
 
 > global $varnish_servers;
-> $varnish_servers = array('192.168.0.1:80','192.168.0.2:80');
+> $varnish_servers = array('192.168.0.1:80:secret','192.168.0.2:80:secret');
 > define('VARNISH_SHOWCFG',1);
 
 The varnish servers array will configure multiple servers for sending the
@@ -77,6 +78,9 @@ Screenshots
 
 Changelog
 ---------
+
+### 0.8
+* Added secret handling to WPVarnishPurgeObject, Thanks Kit Westneat
 
 ### 0.7
 * Added purge when post changes from future to publish, Thanks Marcin Pietrzak
@@ -115,6 +119,9 @@ Changelog
 
 Upgrade Notice
 --------------
+
+### 0.8
+* Added secret handling to WPVarnishPurgeObject, Thanks Kit Westneat
 
 ### 0.7
 * Added purge when post changes from future to publish, Thanks Marcin Pietrzak
