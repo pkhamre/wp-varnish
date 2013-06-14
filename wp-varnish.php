@@ -114,7 +114,7 @@ class WPVarnish {
     add_action('future_to_publish', array($this,
         'WPVarnishPurgePost'), 99);
     add_action('future_to_publish', array($this,
-        'WPVarnishPurgePurgeCommonObjects'), 99);
+        'WPVarnishPurgeCommonObjects'), 99);
 
     // When Theme is changed, Thanks dupuis
     add_action('switch_theme',array($this, 'WPVarnishPurgeAll'), 99);
