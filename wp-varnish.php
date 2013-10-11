@@ -385,8 +385,8 @@ class WPVarnish {
     for ($i = 0; $i < count ($wpv_purgeaddr); $i++) {
       $varnish_sock = fsockopen($wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, $wpv_timeout);
       if (!$varnish_sock) {
-        error_log("wp-varnish error: $errstr ($errno)");
-        return;
+        error_log("wp-varnish error: $errstr ($errno) on server $wpv_purgeaddr[$i]:$wpv_purgeport[$i]");
+        continue;
       }
 
       if($wpv_use_adminport) {
@@ -397,9 +397,9 @@ class WPVarnish {
           fwrite($varnish_sock, "auth " . $this->WPAuth($matches[1], $secret) . "\n");
 	  $buf = fread($varnish_sock, 1024);
           if(!preg_match('/^200/', $buf)) {
-            error_log("wp-varnish error: authentication failed using admin port");
+            error_log("wp-varnish error: authentication failed using admin port on server $wpv_purgeaddr[$i]:$wpv_purgeport[$i]");
 	    fclose($varnish_sock);
-	    return;
+	    continue;
 	  }
         }
         if ($wpv_vversion_optval == 3) {
