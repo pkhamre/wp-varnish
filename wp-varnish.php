@@ -137,7 +137,7 @@ class WPVarnish {
     $this->WPVarnishPurgeObject("/$");
     $this->WPVarnishPurgeObject("/feed/");
     $this->WPVarnishPurgeObject("/feed/atom/");
-    $this->WPVarnishPurgeObject("/category/(.*)");
+    $this->WPVarnishPurgeObject("/".get_option('category_base', 'category')."/(.*)");
 
     // Also purges page navigation
     if (get_option($this->wpv_update_pagenavi_optname) == 1) {
