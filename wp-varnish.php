@@ -335,7 +335,7 @@ class WPVarnish {
       <p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __("Save Changes",'wp-varnish'); ?>" /></p>
 
       <p>
-        <?php echo __('Purge a URL', 'wp-varnish'); ?>:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo get_bloginfo('url'); ?>" />
+        <?php echo __('Purge a URL', 'wp-varnish'); ?>:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo get_bloginfo('url'), '/'; ?>" />
         <input type="submit" class="button-primary" name="wpvarnish_purge_url_submit" value="<?php echo __("Purge",'wp-varnish'); ?>" />
       </p>
 
@@ -403,7 +403,7 @@ class WPVarnish {
 	  }
         }
         if ($wpv_vversion_optval == 3) {
-            $out = "ban req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
+            $out = "ban req.url ~ ^$wpv_url$ && req.http.host == $wpv_host\n";
           } else {
             $out = "purge req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
           }
