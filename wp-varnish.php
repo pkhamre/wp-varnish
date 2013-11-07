@@ -90,6 +90,9 @@ class WPVarnish {
     // Add Administration Interface
     add_action('admin_menu', array($this, 'WPVarnishAdminMenu'));
 
+    // Add Purge Links to Admin Bar
+    add_action('admin_bar_menu', array($this, 'WPVarnishAdminBarLinks'), 100);
+
     // When posts/pages are published, edited or deleted
     add_action('edit_post', array($this, 'WPVarnishPurgePost'), 99);
     add_action('edit_post', array($this, 'WPVarnishPurgeCommonObjects'), 99);
@@ -189,15 +192,68 @@ class WPVarnish {
     }
   }
 
+function WPVarnishPostID() {
+    global $posts, $comment_post_ID, $post_ID;
+
+    if ($post_ID) {
+        return $post_ID;
+    } elseif ($comment_post_ID) {
+        return $comment_post_ID;
+    } elseif (is_single() || is_page() && count($posts)) {
+        return $posts[0]->ID;
+    } elseif (isset($_REQUEST['p'])) {
+        return (integer) $_REQUEST['p'];
+    }
+
+    return 0;
+}
+
   function WPVarnishAdminMenu() {
     if (!defined('VARNISH_HIDE_ADMINMENU')) {
       add_options_page(__('WP-Varnish Configuration','wp-varnish'), 'WP-Varnish', 1, 'WPVarnish', array($this, 'WPVarnishAdmin'));
     }
   }
 
+  function WPVarnishAdminBarLinks($admin_bar){
+    $admin_bar->add_menu( array(
+      'id'    => 'wp-varnish',
+      'title' => __('Varnish','wp-varnish'),
+      'href' => admin_url('admin.php?page=WPVarnish')
+    ));
+    $admin_bar->add_menu( array(
+      'id'    => 'clear-all-cache',
+      'parent' => 'wp-varnish',
+      'title' => 'Purge All Cache',
+      'href'  => wp_nonce_url(admin_url('admin.php?page=WPVarnish&amp;wpvarnish_clear_blog_cache&amp;noheader=true'), 'wp-varnish')
+    ));
+    $admin_bar->add_menu( array(
+      'id'    => 'clear-single-cache',
+      'parent' => 'wp-varnish',
+      'title' => 'Purge This Page',
+      'href'  => wp_nonce_url(admin_url('admin.php?page=WPVarnish&amp;wpvarnish_clear_post&amp;noheader=true&amp;post_id=' . $this->WPVarnishPostID() ), 'wp-varnish')
+    ));
+  }
+
+
+
   // WpVarnishAdmin - Draw the administration interface.
   function WPVarnishAdmin() {
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($_SERVER["REQUEST_METHOD"] == "GET") {
+       if (current_user_can('administrator')) {
+
+          $nonce = $_REQUEST['_wpnonce'];
+
+          if (isset($_GET['wpvarnish_clear_blog_cache']) && wp_verify_nonce( $nonce, 'wp-varnish' )) {
+            $this->WPVarnishPurgeAll();
+            header('Location: '.admin_url('admin.php?page=WPVarnish'));
+          }
+
+          if (isset($_GET['wpvarnish_clear_post']) && wp_verify_nonce( $nonce, 'wp-varnish' )) {
+            $this->WPVarnishPurgePost($_GET['post_id']);
+            header('Location: '.admin_url('admin.php?page=WPVarnish'));
+          }
+       }
+    }elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
        if (current_user_can('administrator')) {
           if (isset($_POST['wpvarnish_admin'])) {
              cleanSubmittedData('wpvarnish_port', '/[^0-9]/');
@@ -244,7 +300,6 @@ class WPVarnish {
                 $wpv_vversion_optval = $_POST["$this->wpv_vversion_optname"];
                 update_option($this->wpv_vversion_optname, $wpv_vversion_optval);
              }
-
           }
 
           if (isset($_POST['wpvarnish_purge_url_submit'])) {
