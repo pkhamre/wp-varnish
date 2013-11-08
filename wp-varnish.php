@@ -91,7 +91,9 @@ class WPVarnish {
     add_action('admin_menu', array($this, 'WPVarnishAdminMenu'));
 
     // Add Purge Links to Admin Bar
-    add_action('admin_bar_menu', array($this, 'WPVarnishAdminBarLinks'), 100);
+    if (current_user_can('administrator')) {
+      add_action('admin_bar_menu', array($this, 'WPVarnishAdminBarLinks'), 100);
+    }
 
     // When posts/pages are published, edited or deleted
     add_action('edit_post', array($this, 'WPVarnishPurgePost'), 99);
