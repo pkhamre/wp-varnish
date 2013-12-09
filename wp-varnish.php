@@ -239,7 +239,7 @@ function WPVarnishPostID() {
   // WpVarnishAdmin - Draw the administration interface.
   function WPVarnishAdmin() {
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
-       if (current_user_can('administrator')) {
+       if (current_user_can('manage_options')) {
 
           $nonce = $_REQUEST['_wpnonce'];
 
@@ -254,7 +254,7 @@ function WPVarnishPostID() {
           }
        }
     }elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
-       if (current_user_can('administrator')) {
+       if (current_user_can('manage_options')) {
           if (isset($_POST['wpvarnish_admin'])) {
              cleanSubmittedData('wpvarnish_port', '/[^0-9]/');
              cleanSubmittedData('wpvarnish_addr', '/[^0-9.]/');
