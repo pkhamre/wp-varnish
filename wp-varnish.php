@@ -94,30 +94,44 @@ class WPVarnish {
     add_action('admin_bar_menu', array($this, 'WPVarnishAdminBarLinks'), 100);
 
     // When posts/pages are published, edited or deleted
-    add_action('edit_post', array($this, 'WPVarnishPurgePost'), 99);
-    add_action('edit_post', array($this, 'WPVarnishPurgeCommonObjects'), 99);
+    // 'edit_post' is not used as it is also executed when a comment is changed,
+    // causing the plugin to purge several URLs (WPVarnishPurgeCommonObjects)
+    // that do not need purging.
+    
+    // When a post or custom post type is published, or if it is edited and its status is "published".
+    add_action('publish_post', array($this, 'WPVarnishPurgePost'), 99);
+    add_action('publish_post', array($this, 'WPVarnishPurgeCommonObjects'), 99);
+    // When a page is published, or if it is edited and its status is "published".
+    add_action('publish_page', array($this, 'WPVarnishPurgePost'), 99);
+    add_action('publish_page', array($this, 'WPVarnishPurgeCommonObjects'), 99);
+    // When an attachment is updated.
+    add_action('edit_attachment', array($this, 'WPVarnishPurgePost'), 99);
+    add_action('edit_attachment', array($this, 'WPVarnishPurgeCommonObjects'), 99);
+    // Runs just after a post is added via email.
+    add_action('publish_phone', array($this, 'WPVarnishPurgePost'), 99);
+    add_action('publish_phone', array($this, 'WPVarnishPurgeCommonObjects'), 99);
+    // Runs when a post is published via XMLRPC request, or if it is edited via XMLRPC and its status is "published".
+    add_action('xmlrpc_publish_post', array($this, 'WPVarnishPurgePost'), 99);
+    add_action('xmlrpc_publish_post', array($this, 'WPVarnishPurgeCommonObjects'), 99);
+    // Runs when a future post or page is published.
+    add_action('publish_future_post', array($this, 'WPVarnishPurgePost'), 99);
+    add_action('publish_future_post', array($this, 'WPVarnishPurgeCommonObjects'), 99);
+    // When post status is changed
     add_action('transition_post_status', array($this, 'WPVarnishPurgePostStatus'), 99, 3);
     add_action('transition_post_status', array($this, 'WPVarnishPurgeCommonObjectsStatus'), 99, 3);
-
-    // When comments are made, edited or deleted
-    add_action('comment_post', array($this, 'WPVarnishPurgePostComments'),99);
-    add_action('edit_comment', array($this, 'WPVarnishPurgePostComments'),99);
-    add_action('trashed_comment', array($this, 'WPVarnishPurgePostComments'),99);
-    add_action('untrashed_comment', array($this, 'WPVarnishPurgePostComments'),99);
-    add_action('deleted_comment', array($this, 'WPVarnishPurgePostComments'),99);
-
-    // When posts or pages are deleted
+    // When posts, pages, attachments are deleted
     add_action('deleted_post', array($this, 'WPVarnishPurgePost'), 99);
     add_action('deleted_post', array($this, 'WPVarnishPurgeCommonObjects'), 99);
 
-    // When xmlRPC call is made
-    add_action('xmlrpc_call',array($this, 'WPVarnishPurgeAll'), 99);
-
-    // When a post changes from future to publish, Thanks Marcin Pietrzak
-    add_action('future_to_publish', array($this,
-        'WPVarnishPurgePost'), 99);
-    add_action('future_to_publish', array($this,
-        'WPVarnishPurgeCommonObjects'), 99);
+    // When comments are made, edited or deleted
+    // See: http://codex.wordpress.org/Plugin_API/Action_Reference#Comment.2C_Ping.2C_and_Trackback_Actions
+    add_action('comment_post', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('edit_comment', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('deleted_comment', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('trashed_comment', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('pingback_post', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('trackback_post', array($this, 'WPVarnishPurgePostComments'),99);
+    add_action('wp_set_comment_status', array($this, 'WPVarnishPurgePostCommentsStatus'),99);
 
     // When Theme is changed, Thanks dupuis
     add_action('switch_theme',array($this, 'WPVarnishPurgeAll'), 99);
@@ -132,65 +146,209 @@ class WPVarnish {
     load_plugin_textdomain('wp-varnish', false, dirname(plugin_basename( __FILE__ ) ) . '/lang/');
   }
 
-  //wrapper on WPVarnishPurgeCommonObjects for transition_post_status
-  function WPVarnishPurgeCommonObjectsStatus($old, $new, $p) {
-	  $this->WPVarnishPurgeCommonObjects($p->ID);
-  }
-  function WPVarnishPurgeCommonObjects() {
-    $this->WPVarnishPurgeObject("/$");
-    $this->WPVarnishPurgeObject("/feed/");
-    $this->WPVarnishPurgeObject("/feed/atom/");
-    $this->WPVarnishPurgeObject("/".get_option('category_base', 'category')."/(.*)");
-
-    // Also purges page navigation
-    if (get_option($this->wpv_update_pagenavi_optname) == 1) {
-       $this->WPVarnishPurgeObject("/page/(.*)");
+    // WPVarnishPurgeAll - Using a regex, clear all blog cache. Use carefully.
+    function WPVarnishPurgeAll() {
+        $this->WPVarnishPurgeObject('/.*');
     }
-  }
 
-  // WPVarnishPurgeAll - Using a regex, clear all blog cache. Use carefully.
-  function WPVarnishPurgeAll() {
-    $this->WPVarnishPurgeObject('/(.*)');
-  }
+    // WPVarnishPurgeURL - Using a URL, clear the cache
+    function WPVarnishPurgeURL($wpv_purl) {
+        $wpv_purl = preg_replace( '#^https?://[^/]+#i', '', $wpv_purl );
+        $this->WPVarnishPurgeObject($wpv_purl);
+    }
 
-  // WPVarnishPurgeURL - Using a URL, clear the cache
-  function WPVarnishPurgeURL($wpv_purl) {
-    $wpv_purl = str_replace(get_bloginfo('url'),"",$wpv_purl);
-    $this->WPVarnishPurgeObject($wpv_purl);
-  }
+    //wrapper on WPVarnishPurgeCommonObjects for transition_post_status
+    function WPVarnishPurgeCommonObjectsStatus($old, $new, $post) {
+        if ( $old != $new ) {
+            if ( $old == 'publish' || $new == 'publish' ) {
+                $this->WPVarnishPurgeCommonObjects($post->ID);
+            }
+        }
+    }
 
-  //wrapper on WPVarnishPurgePost for transition_post_status
-  function WPVarnishPurgePostStatus($old, $new, $p) {
-	  $this->WPVarnishPurgePost($p->ID);
-  }
-  // WPVarnishPurgePost - Takes a post id (number) as an argument and generates
-  // the location path to the object that will be purged based on the permalink.
-  function WPVarnishPurgePost($wpv_postid) {
-    $wpv_url = get_permalink($wpv_postid);
-    $wpv_permalink = str_replace(get_bloginfo('url'),"",$wpv_url);
+    // Purge related objects
+    function WPVarnishPurgeCommonObjects($post_id) {
 
-    $this->WPVarnishPurgeObject($wpv_permalink);
-  }
+        $post = get_post($post_id);
+        // We need a post object in order to generate the archive URLs which are
+        // related to the post. We perform a few checks to make sure we have a
+        // post object.
+        if ( ! is_object($post) || ! isset($post->post_type) || ! in_array( get_post_type($post), array('post') ) ) {
+            // Do nothing for pages, attachments.
+            return;
+        }
+        
+        // NOTE: Policy for archive purging
+        // By default, only the first page of the archives is purged. If
+        // 'wpv_update_pagenavi_optname' is checked, then all the pages of each
+        // archive are purged.
+        if ( get_option($this->wpv_update_pagenavi_optname) == 1 ) {
+            // Purge all pages of the archive.
+            $archive_pattern = '(?:page/[\d]+/)?$';
+        } else {
+            // Only first page of the archive is purged.
+            $archive_pattern = '$';
+        }
 
-  // WPVarnishPurgePostComments - Purge all comments pages from a post
-  function WPVarnishPurgePostComments($wpv_commentid) {
-    $comment = get_comment($wpv_commentid);
-    $wpv_commentapproved = $comment->comment_approved;
+        // Front page (latest posts OR static front page)
+        $this->WPVarnishPurgeObject( '/' . $archive_pattern );
 
-    // If approved or deleting...
-    if ($wpv_commentapproved == 1 || $wpv_commentapproved == 'trash') {
-       $wpv_postid = $comment->comment_post_ID;
+        // Static Posts page (Added only if a static page used as the 'posts page')
+        if ( get_option('show_on_front', 'posts') == 'page' && intval(get_option('page_for_posts', 0)) > 0 ) {
+            $posts_page_url = preg_replace( '#^https?://[^/]+#i', '', get_permalink(intval(get_option('page_for_posts'))) );
+            $this->WPVarnishPurgeObject( $posts_page_url . $archive_pattern );
+        }
 
-       // Popup comments
-       $this->WPVarnishPurgeObject('/\\\?comments_popup=' . $wpv_postid);
+        // Feeds
+        $this->WPVarnishPurgeObject( '/feed/(?:(atom|rdf)/)?$' );
 
-       // Also purges comments navigation
-       if (get_option($this->wpv_update_commentnavi_optname) == 1) {
-          $this->WPVarnishPurgeObject('/\\\?comments_popup=' . $wpv_postid . '&(.*)');
-       }
+        // Category, Tag, Author and Date Archives
+
+        // We get the URLs of the category and tag archives, only for
+        // those categories and tags which have been attached to the post.
+
+        // Category Archive
+        $category_slugs = array();
+        foreach( get_the_category($post->ID) as $cat ) {
+            $category_slugs[] = $cat->slug;
+        }
+        if ( ! empty($category_slugs) ) {
+            if ( count($category_slugs) > 1 ) {
+                $cat_slug_pattern = '(' . implode('|', $category_slugs) . ')';
+            } else {
+                $cat_slug_pattern = implode('', $category_slugs);
+            }
+            $this->WPVarnishPurgeObject( '/' . get_option('category_base', 'category') . '/' . $cat_slug_pattern . '/' . $archive_pattern );
+        }
+
+        // Tag Archive
+        $tag_slugs = array();
+        foreach( get_the_tags($post->ID) as $tag ) {
+            $tag_slugs[] = $tag->slug;
+        }
+        if ( ! empty($tag_slugs) ) {
+            if ( count($tag_slugs) > 1 ) {
+                $tag_slug_pattern = '(' . implode('|', $tag_slugs) . ')';
+            } else {
+                $tag_slug_pattern = implode('', $tag_slugs);
+            }
+            $this->WPVarnishPurgeObject( '/' . get_option('tag_base', 'tag') . '/' . $tag_slug_pattern . '/' . $archive_pattern );
+        }
+
+        // Author Archive
+        $author_archive_url = preg_replace('#^https?://[^/]+#i', '', get_author_posts_url($post->post_author) );
+        $this->WPVarnishPurgeObject( $author_archive_url . $archive_pattern );
+
+        // Date based archives
+        $archive_year = mysql2date('Y', $post->post_date);
+        $archive_month = mysql2date('m', $post->post_date);
+        $archive_day = mysql2date('d', $post->post_date);
+        // Yearly Archive
+        $archive_year_url = preg_replace('#^https?://[^/]+#i', '', get_year_link( $archive_year ) );
+        $this->WPVarnishPurgeObject( $archive_year_url . $archive_pattern );
+        // Monthly Archive
+        $archive_month_url = preg_replace('#^https?://[^/]+#i', '', get_month_link( $archive_year, $archive_month ) );
+        $this->WPVarnishPurgeObject( $archive_month_url . $archive_pattern );
+        // Daily Archive
+        $archive_day_url = preg_replace('#^https?://[^/]+#i', '', get_day_link( $archive_year, $archive_month, $archive_day ) );
+        $this->WPVarnishPurgeObject( $archive_day_url . $archive_pattern );
+    }
+
+    //wrapper on WPVarnishPurgePost for transition_post_status
+    function WPVarnishPurgePostStatus($old, $new, $post) {
+        if ( $old != $new ) {
+            if ( $old == 'publish' || $new == 'publish' ) {
+                $this->WPVarnishPurgePost($post->ID);
+            }
+        }
+    }
+
+    // WPVarnishPurgePost - Purges a post object
+    function WPVarnishPurgePost($post_id, $purge_comments=false) {
+
+        $post = get_post($post_id);
+        // We need a post object, so we perform a few checks.
+        if ( ! is_object($post) || ! isset($post->post_type) || ! in_array( get_post_type($post), array('post', 'page', 'attachment') ) ) {
+            return;
+        }
+
+        //$wpv_url = get_permalink($post->ID);
+        // Here we do not use ``get_permalink()`` to get the post object's permalink,
+        // because this function generates a permalink only for published posts.
+        // So, for example, there is a problem when a post transitions from
+        // status 'publish' to status 'draft', because ``get_permalink`` would
+        // return a URL of the form, ``?p=123``, which does not exist in the cache.
+        // For this reason, the following workaround is used:
+        //   http://wordpress.stackexchange.com/a/42988/14743
+        // It creates a clone of the post object and pretends it's published and
+        // then it generates the permalink for it.
+        if (in_array($post->post_status, array('draft', 'pending', 'auto-draft'))) {
+            $my_post = clone $post;
+            $my_post->post_status = 'published';
+            $my_post->post_name = sanitize_title($my_post->post_name ? $my_post->post_name : $my_post->post_title, $my_post->ID);
+            $wpv_url = get_permalink($my_post);
+        } else {
+            $wpv_url = get_permalink($post->ID);
+        }
+
+        $wpv_url = preg_replace( '#^https?://[^/]+#i', '', $wpv_url );
+
+        // Purge post comments feed and comment pages, if requested, before
+        // adding multipage support.
+        if ( $purge_comments === true ) {
+            // Post comments feed
+            $this->WPVarnishPurgeObject( $wpv_url . 'feed/(?:(atom|rdf)/)?$' );
+            // For paged comments
+            if ( intval(get_option('page_comments', 0)) == 1 ) {
+                if ( get_option($this->wpv_update_commentnavi_optname) == 1 ) {
+                    $this->WPVarnishPurgeObject( $wpv_url . 'comment-page-[\d]+/(?:#comments)?$' );
+                }
+            }
+        }
+
+        // Add support for multipage content for posts and pages
+        if ( in_array( get_post_type($post), array('post', 'page') ) ) {
+            $wpv_url .= '([\d]+/)?$';
+        }
+        // Purge object permalink
+        $this->WPVarnishPurgeObject($wpv_url);
+
+        // For attachments, also purge the parent post, if it is published.
+        if ( get_post_type($post) == 'attachment' ) {
+            if ( $post->post_parent > 0 ) {
+                $parent_post = get_post( $post->post_parent );
+                if ( $parent_post->post_status == 'publish' ) {
+                    // If the parent post is published, then purge its permalink
+                    $wpv_url = preg_replace( '#^https?://[^/]+#i', '', get_permalink($parent_post->ID) );
+                    $this->WPVarnishPurgeObject( $wpv_url );
+                }
+            }
+        }
+    }
+
+    // wrapper on WPVarnishPurgePostComments for comment status changes
+    function WPVarnishPurgePostCommentsStatus($comment_id, $new_comment_status) {
+        $this->WPVarnishPurgePostComments($comment_id);
+    }
+
+    // WPVarnishPurgePostComments - Purge all comments pages from a post
+    function WPVarnishPurgePostComments($comment_id) {
+        $comment = get_comment($comment_id);
+        $post = get_post( $comment->comment_post_ID );
+
+        // Comments feed
+        $this->WPVarnishPurgeObject( '/comments/feed/(?:(atom|rdf)/)?$' );
+
+        // Purge post page, post comments feed and post comments pages
+        $this->WPVarnishPurgePost($post, $purge_comments=true);
+
+        // Popup comments
+        // See:
+        // - http://codex.wordpress.org/Function_Reference/comments_popup_link
+        // - http://codex.wordpress.org/Template_Tags/comments_popup_script
+        $this->WPVarnishPurgeObject( '/.*comments_popup=' . $post->ID . '.*' );
 
     }
-  }
 
 function WPVarnishPostID() {
     global $posts, $comment_post_ID, $post_ID;
