@@ -74,6 +74,10 @@ surfer's IP rather than the server's IP.
 
 == Changelog ==
 
+= dev =
+* Improved handling of URLs to be purged so as to avoid sending duplicate
+  requests and enhance performance. - @gnotaras
+
 = 0.8 =
 * Added secret handling to WPVarnishPurgeObject, Thanks Kit Westneat
 * Change WPVarnishPurgePurgeCommonObjects to WPVarnishPurgeCommonObjects,
@@ -116,6 +120,10 @@ surfer's IP rather than the server's IP.
 * Initial release.
 
 == Upgrade Notice ==
+
+= dev =
+* Improved handling of URLs to be purged so as to avoid sending duplicate
+  requests and enhance performance. - @gnotaras
 
 = 0.8 =
 * Added secret handling to WPVarnishPurgeObject, Thanks Kit Westneat

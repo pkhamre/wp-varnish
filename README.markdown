@@ -79,6 +79,10 @@ Screenshots
 Changelog
 ---------
 
+### dev
+* Improved handling of URLs to be purged so as to avoid sending duplicate
+  requests and enhance performance. - @gnotaras
+
 ### 0.8
 * Added secret handling to WPVarnishPurgeObject, Thanks Kit Westneat
 * Change WPVarnishPurgePurgeCommonObjects to WPVarnishPurgeCommonObjects,
@@ -123,6 +127,10 @@ Changelog
 
 Upgrade Notice
 --------------
+
+### dev
+* Improved handling of URLs to be purged so as to avoid sending duplicate
+  requests and enhance performance. - @gnotaras
 
 ### 0.8
 * Added secret handling to WPVarnishPurgeObject, Thanks Kit Westneat

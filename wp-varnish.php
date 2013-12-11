@@ -31,6 +31,10 @@ class WPVarnish {
   public $wpv_update_pagenavi_optname;
   public $wpv_update_commentnavi_optname;
 
+  // Store all URLs to be purged in this array. This is used in order to avoid
+  // duplicate purges/bans.
+  public $purge_url_pool = array();
+
   function WPVarnish() {
     global $post;
 
@@ -135,6 +139,9 @@ class WPVarnish {
 
     // When Theme is changed, Thanks dupuis
     add_action('switch_theme',array($this, 'WPVarnishPurgeAll'), 99);
+
+    // Perform the actual purging on 'shutdown' hook.
+    add_action('shutdown', array($this, 'WPVarnishPurgePool'), 99);
 
     // When a new plugin is loaded
     // this was added due to Issue #12, but, doesn't do what was intended
@@ -558,78 +565,97 @@ function WPVarnishPostID() {
   <?php
   }
 
-  // WPVarnishPurgeObject - Takes a location as an argument and purges this object
-  // from the varnish cache.
-  function WPVarnishPurgeObject($wpv_url) {
-    global $varnish_servers;
-
-    if (is_array($varnish_servers)) {
-       foreach ($varnish_servers as $server) {
-          list ($host, $port, $secret) = explode(':', $server);
-          $wpv_purgeaddr[] = $host;
-          $wpv_purgeport[] = $port;
-          $wpv_secret[] = $secret;
-       }
-    } else {
-       $wpv_purgeaddr = get_option($this->wpv_addr_optname);
-       $wpv_purgeport = get_option($this->wpv_port_optname);
-       $wpv_secret = get_option($this->wpv_secret_optname);
+    // WPVarnishPurgeObject - Adds the URL to the URL pool.
+    function WPVarnishPurgeObject($wpv_url) {
+        array_push($this->purge_url_pool, $wpv_url);
     }
 
-    $wpv_timeout = get_option($this->wpv_timeout_optname);
-    $wpv_use_adminport = get_option($this->wpv_use_adminport_optname);
-    global $varnish_version;
-    if ( isset($varnish_version) && in_array($varnish_version, array(2,3)) )
-       $wpv_vversion_optval = $varnish_version;
-    else
-       $wpv_vversion_optval = get_option($this->wpv_vversion_optname);
+    // Purges all URLs in the pool.
+	function WPVarnishPurgePool() {
+        // Just return if we do not have any URLs to purge
+		if ( empty($this->purge_url_pool) ) {
+			return;
+		}
 
-    // check for domain mapping plugin by donncha
-    if (function_exists('domain_mapping_siteurl')) {
-        $wpv_wpurl = domain_mapping_siteurl('NA');
-    } else {
-        $wpv_wpurl = get_bloginfo('url');
-    }
-    $wpv_replace_wpurl = '/^https?:\/\/([^\/]+)(.*)/i';
-    $wpv_host = preg_replace($wpv_replace_wpurl, "$1", $wpv_wpurl);
-    $wpv_blogaddr = preg_replace($wpv_replace_wpurl, "$2", $wpv_wpurl);
-    $wpv_url = $wpv_blogaddr . $wpv_url;
+        // Make the contents of the URL pool unique
+        $url_pool = array_unique($this->purge_url_pool);
 
-    for ($i = 0; $i < count ($wpv_purgeaddr); $i++) {
-      $varnish_sock = fsockopen($wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, $wpv_timeout);
-      if (!$varnish_sock) {
-        error_log("wp-varnish error: $errstr ($errno) on server $wpv_purgeaddr[$i]:$wpv_purgeport[$i]");
-        continue;
-      }
+        // Get Varnish servers info
+        global $varnish_servers;
 
-      if($wpv_use_adminport) {
-        $buf = fread($varnish_sock, 1024);
-        if(preg_match('/(\w+)\s+Authentication required./', $buf, $matches)) {
-          # get the secret
-          $secret = $wpv_secret[$i];
-          fwrite($varnish_sock, "auth " . $this->WPAuth($matches[1], $secret) . "\n");
-	  $buf = fread($varnish_sock, 1024);
-          if(!preg_match('/^200/', $buf)) {
-            error_log("wp-varnish error: authentication failed using admin port on server $wpv_purgeaddr[$i]:$wpv_purgeport[$i]");
-	    fclose($varnish_sock);
-	    continue;
-	  }
+        if (is_array($varnish_servers)) {
+            foreach ($varnish_servers as $server) {
+                list ($host, $port, $secret) = explode(':', $server);
+                $wpv_purgeaddr[] = $host;
+                $wpv_purgeport[] = $port;
+                $wpv_secret[] = $secret;
+            }
+        } else {
+            $wpv_purgeaddr = get_option($this->wpv_addr_optname);
+            $wpv_purgeport = get_option($this->wpv_port_optname);
+            $wpv_secret = get_option($this->wpv_secret_optname);
         }
-        if ($wpv_vversion_optval == 3) {
-            $out = "ban req.url ~ ^$wpv_url$ && req.http.host == $wpv_host\n";
-          } else {
-            $out = "purge req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
-          }
-      } else {
-        $out = "BAN $wpv_url HTTP/1.0\r\n";
-        $out .= "Host: $wpv_host\r\n";
-        $out .= "User-Agent: WordPress-Varnish plugin\r\n";
-        $out .= "Connection: Close\r\n\r\n";
-      }
-      fwrite($varnish_sock, $out);
-      fclose($varnish_sock);
-    }
-  }
+
+        // Gather connection settings
+        $wpv_timeout = get_option($this->wpv_timeout_optname);
+        $wpv_use_adminport = get_option($this->wpv_use_adminport_optname);
+        global $varnish_version;
+        if ( isset($varnish_version) && in_array($varnish_version, array(2,3)) ) {
+            $wpv_vversion_optval = $varnish_version;
+        } else {
+            $wpv_vversion_optval = get_option($this->wpv_vversion_optname);
+        }
+
+        // Process URL pool and purge
+        foreach ($url_pool as $wpv_url) {
+
+            // check for domain mapping plugin by donncha
+            if (function_exists('domain_mapping_siteurl')) {
+                $wpv_wpurl = domain_mapping_siteurl('NA');
+            } else {
+                $wpv_wpurl = get_bloginfo('url');
+            }
+            $wpv_replace_wpurl = '/^https?:\/\/([^\/]+)(.*)/i';
+            $wpv_host = preg_replace($wpv_replace_wpurl, "$1", $wpv_wpurl);
+            $wpv_blogaddr = preg_replace($wpv_replace_wpurl, "$2", $wpv_wpurl);
+            $wpv_url = $wpv_blogaddr . $wpv_url;
+
+            for ($i = 0; $i < count ($wpv_purgeaddr); $i++) {
+                $varnish_sock = fsockopen($wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, $wpv_timeout);
+                if (!$varnish_sock) {
+                    error_log("wp-varnish error: $errstr ($errno) on server $wpv_purgeaddr[$i]:$wpv_purgeport[$i]");
+                    continue;
+                }
+
+                if($wpv_use_adminport) {
+                    $buf = fread($varnish_sock, 1024);
+                    if(preg_match('/(\w+)\s+Authentication required./', $buf, $matches)) {
+                        # get the secret
+                        $secret = $wpv_secret[$i];
+                        fwrite($varnish_sock, "auth " . $this->WPAuth($matches[1], $secret) . "\n");
+                        $buf = fread($varnish_sock, 1024);
+                        if(!preg_match('/^200/', $buf)) {
+                            error_log("wp-varnish error: authentication failed using admin port on server $wpv_purgeaddr[$i]:$wpv_purgeport[$i]");
+                            fclose($varnish_sock);
+                            continue;
+                        }
+                    }
+                    if ($wpv_vversion_optval == 3) {
+                        $out = "ban req.url ~ ^$wpv_url$ && req.http.host == $wpv_host\n";
+                    } else {
+                        $out = "purge req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
+                    }
+                } else {
+                    $out = "BAN $wpv_url HTTP/1.0\r\n";
+                    $out .= "Host: $wpv_host\r\n";
+                    $out .= "User-Agent: WordPress-Varnish plugin\r\n";
+                    $out .= "Connection: Close\r\n\r\n";
+                }
+                fwrite($varnish_sock, $out);
+                fclose($varnish_sock);
+            }
+        }
+	}
 
   function WPAuth($challenge, $secret) {
     $ctx = hash_init('sha256');
