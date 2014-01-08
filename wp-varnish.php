@@ -480,7 +480,7 @@ class WPVarnish {
 						update_option( "wpvarnish_port", $_POST["wpvarnish_port"] );
 					}
 
-					if ( !empty( $_POST[wpvarnish_secret] ) ) {
+					if ( !empty( $_POST["wpvarnish_secret"] ) ) {
 						update_option( "wpvarnish_secret", $_POST["wpvarnish_secret"] );
 					}
 
