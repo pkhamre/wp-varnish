@@ -49,46 +49,9 @@ class WPVarnish {
 		$this->wpv_update_commentnavi_optname = "wpvarnish_update_commentnavi";
 		$this->wpv_use_adminport_optname = "wpvarnish_use_adminport";
 		$this->wpv_vversion_optname = "wpvarnish_vversion";
-		$wpv_addr_optval = array( "127.0.0.1" );
-		$wpv_port_optval = array( 80 );
-		$wpv_secret_optval = array( "" );
-		$wpv_timeout_optval = 5;
-		$wpv_update_pagenavi_optval = 0;
-		$wpv_update_commentnavi_optval = 0;
-		$wpv_use_adminport_optval = 0;
-		$wpv_vversion_optval = 2;
-
-		if ( (get_option( $this->wpv_addr_optname ) == FALSE ) ) {
-			add_option( $this->wpv_addr_optname, $wpv_addr_optval, '', 'yes' );
-		}
-
-		if ( (get_option( $this->wpv_port_optname ) == FALSE ) ) {
-			add_option( $this->wpv_port_optname, $wpv_port_optval, '', 'yes' );
-		}
-
-		if ( (get_option( $this->wpv_secret_optname ) == FALSE ) ) {
-			add_option( $this->wpv_secret_optname, $wpv_secret_optval, '', 'yes' );
-		}
-
-		if ( (get_option( $this->wpv_timeout_optname ) == FALSE ) ) {
-			add_option( $this->wpv_timeout_optname, $wpv_timeout_optval, '', 'yes' );
-		}
-
-		if ( (get_option( $this->wpv_update_pagenavi_optname ) == FALSE ) ) {
-			add_option( $this->wpv_update_pagenavi_optname, $wpv_update_pagenavi_optval, '', 'yes' );
-		}
-
-		if ( (get_option( $this->wpv_update_commentnavi_optname ) == FALSE ) ) {
-			add_option( $this->wpv_update_commentnavi_optname, $wpv_update_commentnavi_optval, '', 'yes' );
-		}
-
-		if ( (get_option( $this->wpv_use_adminport_optname ) == FALSE ) ) {
-			add_option( $this->wpv_use_adminport_optname, $wpv_use_adminport_optval, '', 'yes' );
-		}
-
-		if ( (get_option( $this->wpv_vversion_optname ) == FALSE ) ) {
-			add_option( $this->wpv_vversion_optname, $wpv_vversion_optval, '', 'yes' );
-		}
+		
+		// Option exists ?
+		$this->install();
 
 		// Localization init
 		add_action( 'init', array( $this, 'initLocalization' ) );
@@ -145,6 +108,52 @@ class WPVarnish {
 		// this was added due to Issue #12, but, doesn't do what was intended
 		// commenting this out gets rid of the incessant purging.
 		//add_action('plugins_loaded',array($this, 'PurgeAll'), 99);
+	}
+	
+	/**
+	 * Always execute install and add_option if need
+	 */
+	public function install() {
+		$wpv_addr_optval = array( "127.0.0.1" );
+		$wpv_port_optval = array( 80 );
+		$wpv_secret_optval = array( "" );
+		$wpv_timeout_optval = 5;
+		$wpv_update_pagenavi_optval = 0;
+		$wpv_update_commentnavi_optval = 0;
+		$wpv_use_adminport_optval = 0;
+		$wpv_vversion_optval = 2;
+		
+		if ( (get_option( $this->wpv_addr_optname ) == FALSE ) ) {
+			add_option( $this->wpv_addr_optname, $wpv_addr_optval, '', 'yes' );
+		}
+
+		if ( (get_option( $this->wpv_port_optname ) == FALSE ) ) {
+			add_option( $this->wpv_port_optname, $wpv_port_optval, '', 'yes' );
+		}
+
+		if ( (get_option( $this->wpv_secret_optname ) == FALSE ) ) {
+			add_option( $this->wpv_secret_optname, $wpv_secret_optval, '', 'yes' );
+		}
+
+		if ( (get_option( $this->wpv_timeout_optname ) == FALSE ) ) {
+			add_option( $this->wpv_timeout_optname, $wpv_timeout_optval, '', 'yes' );
+		}
+
+		if ( (get_option( $this->wpv_update_pagenavi_optname ) == FALSE ) ) {
+			add_option( $this->wpv_update_pagenavi_optname, $wpv_update_pagenavi_optval, '', 'yes' );
+		}
+
+		if ( (get_option( $this->wpv_update_commentnavi_optname ) == FALSE ) ) {
+			add_option( $this->wpv_update_commentnavi_optname, $wpv_update_commentnavi_optval, '', 'yes' );
+		}
+
+		if ( (get_option( $this->wpv_use_adminport_optname ) == FALSE ) ) {
+			add_option( $this->wpv_use_adminport_optname, $wpv_use_adminport_optval, '', 'yes' );
+		}
+
+		if ( (get_option( $this->wpv_vversion_optname ) == FALSE ) ) {
+			add_option( $this->wpv_vversion_optname, $wpv_vversion_optval, '', 'yes' );
+		}
 	}
 
 	/**
