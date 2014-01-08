@@ -2,9 +2,9 @@
 Contributors: pkhamre, wfelipe, eitch
 Donate link: http://github.com/pkhamre/wp-varnish
 Tags: cache, caching, performance, varnish, purge, speed
-Requires at least: 2.9.2
-* Tested up to: 3.6.1
-* Stable tag: 0.8
+Requires at least: 3.4
+Tested up to: 3.8
+Stable tag: 0.9
 
 WordPress Varnish is a simple plugin that purges new and edited content.
 
@@ -43,13 +43,22 @@ blogs. Configuration can be done on the blogs individually, or can be global.
 If you want to configure Varnish servers globally, edit wp-config.php and
 include these lines just before "That's all, stop editing!" message:
 
-global $varnish_servers;
-$varnish_servers = array('192.168.0.1:80:secret','192.168.0.2:80:secret');
-define('VARNISH_SHOWCFG',1);
+    global $varnish_servers;
+    $varnish_servers = array('192.168.0.1:80:secret','192.168.0.2:80:secret');
+    define('VARNISH_SHOWCFG',1);
 
 The varnish servers array will configure multiple servers for sending the
 purges. If VARNISH_SHOWCFG is defined, configuration will be shown to all
 users who access the plugin configuration page (but they can't edit it).
+
+If `VARNISH_HIDE_ADMINMENU` constant is defined, configuration page will be hide
+from WordPress administration.
+
+If you want to configure Varnish version globally, edit wp-config.php and
+include these lines just before "That's all, stop editing!" message:
+
+    global $varnish_version;
+    $varnish_servers = 2; // or 3 depending your server installation
 
 = My Plugins are seeing the Varnish server's IP rather than the websurfer IP =
 
@@ -74,10 +83,14 @@ surfer's IP rather than the server's IP.
 
 == Changelog ==
 
+= 0.9 =
+* Code refactoring (PHP5, cleanup) (CAUTION: Renaming many methods !)
+* Fix admin bar actions with constant VARNISH_HIDE_ADMINMENU
+* Hide Varnish Version selector when global $varnish_version is defined !
+
 = 0.8 =
 * Added secret handling to WPVarnishPurgeObject, Thanks Kit Westneat
-* Change WPVarnishPurgePurgeCommonObjects to WPVarnishPurgeCommonObjects,
-  Thanks kitwestneat
+* Change WPVarnishPurgePurgeCommonObjects to WPVarnishPurgeCommonObjects, Thanks kitwestneat
 * added @ to supress Undefined offset notice
 * minor doc changes
 
