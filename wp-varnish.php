@@ -665,5 +665,8 @@ class WPVarnish {
 
 }
 
-$wpvarnish = new WPVarnish();
-
+add_action( 'plugins_loaded', '_init_wp_varnish' );
+function _init_wp_varnish() {
+	global $wpvarnish;
+	$wpvarnish = new WPVarnish();
+}
