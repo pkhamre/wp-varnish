@@ -604,7 +604,7 @@ class WPVarnish {
 				<p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __( "Save Changes", 'wp-varnish' ); ?>" /></p>
 
 				<p>
-					<?php echo __( 'Purge a URL', 'wp-varnish' ); ?>:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo home_url('/'); ?>" />
+					<?php echo __( 'Purge a URL', 'wp-varnish' ); ?>:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo self::getBaseURL('/'); ?>" />
 					<input type="submit" class="button-primary" name="wpvarnish_purge_url_submit" value="<?php echo __( "Purge", 'wp-varnish' ); ?>" />
 				</p>
 
@@ -642,25 +642,18 @@ class WPVarnish {
 		$wpv_timeout = get_option( "wpvarnish_timeout" );
 		$wpv_use_adminport = get_option( "wpvarnish_use_adminport" );
 		
-
-		// check for domain mapping plugin by donncha
-		if ( function_exists( 'domain_mapping_siteurl' ) ) {
-			$wpv_wpurl = domain_mapping_siteurl( 'NA' );
-		} else {
-			$wpv_wpurl = home_url();
-		}
+		$wpv_wpurl = self::getBaseURL();
 		$wpv_replace_wpurl = '/^https?:\/\/([^\/]+)(.*)/i';
 		$wpv_host = preg_replace( $wpv_replace_wpurl, "$1", $wpv_wpurl );
 		$wpv_blogaddr = preg_replace( $wpv_replace_wpurl, "$2", $wpv_wpurl );
 		$wpv_url = $wpv_blogaddr . $wpv_url;
-
 		for ( $i = 0; $i < count( $wpv_purgeaddr ); $i++ ) {
 			$varnish_sock = fsockopen( $wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, $wpv_timeout );
 			if ( !$varnish_sock ) {
 				error_log( "wp-varnish error: $errstr ($errno) on server $wpv_purgeaddr[$i]:$wpv_purgeport[$i]" );
 				continue;
 			}
-
+			
 			if ( $wpv_use_adminport ) {
 				$buf = fread( $varnish_sock, 1024 );
 				if ( preg_match( '/(\w+)\s+Authentication required./', $buf, $matches ) ) {
@@ -761,6 +754,19 @@ class WPVarnish {
 		}
 		
 		return false;
+	}
+	
+	public static function getBaseURL( $path = '' ) {
+		// check for domain mapping plugin by donncha
+		if ( function_exists( 'domain_mapping_siteurl' ) ) {
+			$base_url = domain_mapping_siteurl( 'NA' );
+			$base_url = untrailingslashit($base_url);
+			$base_url .= $path;
+		} else {
+			$base_url = home_url( $path );
+		}
+		
+		return $base_url;
 	}
 }
 
