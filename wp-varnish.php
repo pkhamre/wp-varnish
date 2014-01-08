@@ -635,7 +635,7 @@ class WPVarnish {
 	 * @param string $wpv_url
 	 */
 	public function PurgeObject( $wpv_url ) {
-		global $varnish_servers, $varnish_version;
+		global $varnish_servers;
 
 		if ( is_array( $varnish_servers ) ) {
 			foreach ( $varnish_servers as $server ) {
@@ -653,10 +653,6 @@ class WPVarnish {
 		$wpv_timeout = get_option( "wpvarnish_timeout" );
 		$wpv_use_adminport = get_option( "wpvarnish_use_adminport" );
 		
-		if ( isset( $varnish_version ) && in_array( $varnish_version, array( 2, 3 ) ) )
-			$wpv_vversion_optval = $varnish_version;
-		else
-			$wpv_vversion_optval = get_option( $this->wpv_vversion_optname );
 
 		// check for domain mapping plugin by donncha
 		if ( function_exists( 'domain_mapping_siteurl' ) ) {
@@ -689,7 +685,7 @@ class WPVarnish {
 						continue;
 					}
 				}
-				if ( $wpv_vversion_optval == 3 ) {
+				if ( self::getVarnishVersion() == 3 ) {
 					$out = "ban req.url ~ ^$wpv_url$ && req.http.host == $wpv_host\n";
 				} else {
 					$out = "purge req.url ~ ^$wpv_url && req.http.host == $wpv_host\n";
@@ -753,7 +749,14 @@ class WPVarnish {
 		return true;
 	}
 
+	public static function getVarnishVersion() {
+		global $varnish_version;
 
+		if ( isset( $varnish_version ) && in_array( $varnish_version, array( 2, 3 ) ) )
+			return $varnish_version;
+		
+		return get_option( "wpvarnish_vversion" );
+	}
 }
 
 add_action( 'plugins_loaded', '_init_wp_varnish' );
