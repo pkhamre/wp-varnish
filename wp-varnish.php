@@ -622,7 +622,7 @@ class WPVarnish {
 				<p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __( "Save Changes", 'wp-varnish' ); ?>" /></p>
 
 				<p>
-					<?php echo __( 'Purge a URL', 'wp-varnish' ); ?>:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo get_bloginfo( 'url' ), '/'; ?>" />
+					<?php echo __( 'Purge a URL', 'wp-varnish' ); ?>:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo home_url('/'); ?>" />
 					<input type="submit" class="button-primary" name="wpvarnish_purge_url_submit" value="<?php echo __( "Purge", 'wp-varnish' ); ?>" />
 				</p>
 
@@ -670,7 +670,7 @@ class WPVarnish {
 		if ( function_exists( 'domain_mapping_siteurl' ) ) {
 			$wpv_wpurl = domain_mapping_siteurl( 'NA' );
 		} else {
-			$wpv_wpurl = get_bloginfo( 'url' );
+			$wpv_wpurl = home_url();
 		}
 		$wpv_replace_wpurl = '/^https?:\/\/([^\/]+)(.*)/i';
 		$wpv_host = preg_replace( $wpv_replace_wpurl, "$1", $wpv_wpurl );
