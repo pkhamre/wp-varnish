@@ -36,7 +36,7 @@ class WPVarnish {
 	public $wpv_update_pagenavi_optname;
 	public $wpv_update_commentnavi_optname;
 
-	function WPVarnish() {
+	public function __constuct() {
 		global $post;
 
 		$this->wpv_addr_optname = "wpvarnish_addr";
@@ -146,23 +146,23 @@ class WPVarnish {
 		//add_action('plugins_loaded',array($this, 'WPVarnishPurgeAll'), 99);
 	}
 
-	function WPVarnishLocalization() {
+	public function WPVarnishLocalization() {
 		load_plugin_textdomain( 'wp-varnish', false, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
 	}
 
 	// WPVarnishPurgeAll - Using a regex, clear all blog cache. Use carefully.
-	function WPVarnishPurgeAll() {
+	public function WPVarnishPurgeAll() {
 		$this->WPVarnishPurgeObject( '/.*' );
 	}
 
 	// WPVarnishPurgeURL - Using a URL, clear the cache
-	function WPVarnishPurgeURL( $wpv_purl ) {
+	public function WPVarnishPurgeURL( $wpv_purl ) {
 		$wpv_purl = preg_replace( '#^https?://[^/]+#i', '', $wpv_purl );
 		$this->WPVarnishPurgeObject( $wpv_purl );
 	}
 
 	//wrapper on WPVarnishPurgeCommonObjects for transition_post_status
-	function WPVarnishPurgeCommonObjectsStatus( $old, $new, $post ) {
+	public function WPVarnishPurgeCommonObjectsStatus( $old, $new, $post ) {
 		if ( $old != $new ) {
 			if ( $old == 'publish' || $new == 'publish' ) {
 				$this->WPVarnishPurgeCommonObjects( $post->ID );
@@ -171,7 +171,7 @@ class WPVarnish {
 	}
 
 	// Purge related objects
-	function WPVarnishPurgeCommonObjects( $post_id ) {
+	public function WPVarnishPurgeCommonObjects( $post_id ) {
 
 		$post = get_post( $post_id );
 		// We need a post object in order to generate the archive URLs which are
@@ -257,7 +257,7 @@ class WPVarnish {
 	}
 
 	//wrapper on WPVarnishPurgePost for transition_post_status
-	function WPVarnishPurgePostStatus( $old, $new, $post ) {
+	public function WPVarnishPurgePostStatus( $old, $new, $post ) {
 		if ( $old != $new ) {
 			if ( $old == 'publish' || $new == 'publish' ) {
 				$this->WPVarnishPurgePost( $post->ID );
@@ -266,7 +266,7 @@ class WPVarnish {
 	}
 
 	// WPVarnishPurgePost - Purges a post object
-	function WPVarnishPurgePost( $post_id, $purge_comments = false ) {
+	public function WPVarnishPurgePost( $post_id, $purge_comments = false ) {
 
 		$post = get_post( $post_id );
 		// We need a post object, so we perform a few checks.
@@ -329,12 +329,12 @@ class WPVarnish {
 	}
 
 	// wrapper on WPVarnishPurgePostComments for comment status changes
-	function WPVarnishPurgePostCommentsStatus( $comment_id, $new_comment_status ) {
+	public function WPVarnishPurgePostCommentsStatus( $comment_id, $new_comment_status ) {
 		$this->WPVarnishPurgePostComments( $comment_id );
 	}
 
 	// WPVarnishPurgePostComments - Purge all comments pages from a post
-	function WPVarnishPurgePostComments( $comment_id ) {
+	public function WPVarnishPurgePostComments( $comment_id ) {
 		$comment = get_comment( $comment_id );
 		$post = get_post( $comment->comment_post_ID );
 
@@ -351,7 +351,7 @@ class WPVarnish {
 		$this->WPVarnishPurgeObject( '/.*comments_popup=' . $post->ID . '.*' );
 	}
 
-	function WPVarnishPostID() {
+	public function WPVarnishPostID() {
 		global $posts, $comment_post_ID, $post_ID;
 
 		if ( $post_ID ) {
@@ -367,13 +367,13 @@ class WPVarnish {
 		return 0;
 	}
 
-	function WPVarnishAdminMenu() {
+	public function WPVarnishAdminMenu() {
 		if ( !defined( 'VARNISH_HIDE_ADMINMENU' ) ) {
 			add_options_page( __( 'WP-Varnish Configuration', 'wp-varnish' ), 'WP-Varnish', 1, 'WPVarnish', array( $this, 'WPVarnishAdmin' ) );
 		}
 	}
 
-	function WPVarnishAdminBarLinks( $admin_bar ) {
+	public function WPVarnishAdminBarLinks( $admin_bar ) {
 		$admin_bar->add_menu( array(
 			'id' => 'wp-varnish',
 			'title' => __( 'Varnish', 'wp-varnish' ),
@@ -394,7 +394,7 @@ class WPVarnish {
 	}
 
 	// WpVarnishAdmin - Draw the administration interface.
-	function WPVarnishAdmin() {
+	public function WPVarnishAdmin() {
 		if ( $_SERVER["REQUEST_METHOD"] == "GET" ) {
 			if ( current_user_can( 'manage_options' ) ) {
 
@@ -559,7 +559,7 @@ class WPVarnish {
 
 	// WPVarnishPurgeObject - Takes a location as an argument and purges this object
 	// from the varnish cache.
-	function WPVarnishPurgeObject( $wpv_url ) {
+	public function WPVarnishPurgeObject( $wpv_url ) {
 		global $varnish_servers;
 
 		if ( is_array( $varnish_servers ) ) {
@@ -630,7 +630,7 @@ class WPVarnish {
 		}
 	}
 
-	function WPAuth( $challenge, $secret ) {
+	public function WPAuth( $challenge, $secret ) {
 		$ctx = hash_init( 'sha256' );
 		hash_update( $ctx, $challenge );
 		hash_update( $ctx, "\n" );
