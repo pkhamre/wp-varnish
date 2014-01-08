@@ -349,7 +349,7 @@ class WPVarnish {
 		$this->PurgeObject( '/.*comments_popup=' . $post->ID . '.*' );
 	}
 
-	public function PostID() {
+	public function getPostID() {
 		global $posts, $comment_post_ID, $post_ID;
 
 		if ( $post_ID ) {
@@ -387,7 +387,7 @@ class WPVarnish {
 			'id' => 'clear-single-cache',
 			'parent' => 'wp-varnish',
 			'title' => 'Purge This Page',
-			'href' => wp_nonce_url( admin_url( 'admin.php?page=WPVarnish&amp;wpvarnish_clear_post&amp;noheader=true&amp;post_id=' . $this->PostID() ), 'wp-varnish' )
+			'href' => wp_nonce_url( admin_url( 'admin.php?page=WPVarnish&amp;wpvarnish_clear_post&amp;noheader=true&amp;post_id=' . $this->getPostID() ), 'wp-varnish' )
 		) );
 	}
 
