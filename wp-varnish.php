@@ -402,12 +402,14 @@ class WPVarnish {
 
 				if ( isset( $_GET['wpvarnish_clear_blog_cache'] ) && wp_verify_nonce( $nonce, 'wp-varnish' ) ) {
 					$this->PurgeAll();
-					header( 'Location: ' . admin_url( 'admin.php?page=WPVarnish' ) );
+					wp_redirect( admin_url( 'admin.php?page=WPVarnish' ) );
+					exit();
 				}
 
 				if ( isset( $_GET['wpvarnish_clear_post'] ) && wp_verify_nonce( $nonce, 'wp-varnish' ) ) {
 					$this->PurgePost( $_GET['post_id'] );
-					header( 'Location: ' . admin_url( 'admin.php?page=WPVarnish' ) );
+					wp_redirect( 'Location: ' . admin_url( 'admin.php?page=WPVarnish' ) );
+					exit();
 				}
 			}
 		} elseif ( $_SERVER["REQUEST_METHOD"] == "POST" ) {
