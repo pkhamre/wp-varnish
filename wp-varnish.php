@@ -97,45 +97,36 @@ class WPVarnish {
 	 * Always execute install and add_option if need
 	 */
 	public function install() {
-		$wpv_addr_optval = array( "127.0.0.1" );
-		$wpv_port_optval = array( 80 );
-		$wpv_secret_optval = array( "" );
-		$wpv_timeout_optval = 5;
-		$wpv_update_pagenavi_optval = 0;
-		$wpv_update_commentnavi_optval = 0;
-		$wpv_use_adminport_optval = 0;
-		$wpv_vversion_optval = 2;
-		
 		if ( (get_option( "wpvarnish_addr" ) == FALSE ) ) {
-			add_option( "wpvarnish_addr", $wpv_addr_optval, '', 'yes' );
+			add_option( "wpvarnish_addr", array( "127.0.0.1" ), '', 'yes' );
 		}
 
 		if ( (get_option( "wpvarnish_port" ) == FALSE ) ) {
-			add_option( "wpvarnish_port", $wpv_port_optval, '', 'yes' );
+			add_option( "wpvarnish_port", array( 80 ), '', 'yes' );
 		}
 
 		if ( (get_option( "wpvarnish_secret" ) == FALSE ) ) {
-			add_option( "wpvarnish_secret", $wpv_secret_optval, '', 'yes' );
+			add_option( "wpvarnish_secret", array( "" ), '', 'yes' );
 		}
 
 		if ( (get_option( "wpvarnish_timeout" ) == FALSE ) ) {
-			add_option( "wpvarnish_timeout", $wpv_timeout_optval, '', 'yes' );
+			add_option( "wpvarnish_timeout", 5, '', 'yes' );
 		}
 
 		if ( (get_option( "wpvarnish_update_pagenavi" ) == FALSE ) ) {
-			add_option( "wpvarnish_update_pagenavi", $wpv_update_pagenavi_optval, '', 'yes' );
+			add_option( "wpvarnish_update_pagenavi", 0, '', 'yes' );
 		}
 
 		if ( (get_option( "wpvarnish_update_commentnavi" ) == FALSE ) ) {
-			add_option( "wpvarnish_update_commentnavi", $wpv_update_commentnavi_optval, '', 'yes' );
+			add_option( "wpvarnish_update_commentnavi", 0, '', 'yes' );
 		}
 
 		if ( (get_option( "wpvarnish_use_adminport" ) == FALSE ) ) {
-			add_option( "wpvarnish_use_adminport", $wpv_use_adminport_optval, '', 'yes' );
+			add_option( "wpvarnish_use_adminport", 0, '', 'yes' );
 		}
 
 		if ( (get_option( "wpvarnish_vversion" ) == FALSE ) ) {
-			add_option( "wpvarnish_vversion", $wpv_vversion_optval, '', 'yes' );
+			add_option( "wpvarnish_vversion", 2, '', 'yes' );
 		}
 	}
 
@@ -752,10 +743,26 @@ class WPVarnish {
 	public static function getVarnishVersion() {
 		global $varnish_version;
 
-		if ( isset( $varnish_version ) && in_array( $varnish_version, array( 2, 3 ) ) )
+		if ( isset( $varnish_version ) && in_array( $varnish_version, array( 2, 3 ) ) ) {
 			return $varnish_version;
+		}
 		
 		return get_option( "wpvarnish_vversion" );
+	}
+	
+	/**
+	 * Varnish version is defined in config file ?
+	 * @global integer $varnish_version
+	 * @return boolean
+	 */
+	public static function isHardcodedVarnishVersion() {
+		global $varnish_version;
+
+		if ( isset( $varnish_version ) && in_array( $varnish_version, array( 2, 3 ) ) ) {
+			return true;
+		}
+		
+		return false;
 	}
 }
 
