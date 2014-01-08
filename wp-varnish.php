@@ -409,7 +409,7 @@ class WPVarnish {
 	 */
 	public function AdminMenu() {
 		if ( !defined( 'VARNISH_HIDE_ADMINMENU' ) ) {
-			add_options_page( __( 'WP-Varnish Configuration', 'wp-varnish' ), 'WP-Varnish', 'manage_options', 'WPVarnish', array( $this, 'Admin' ) );
+			add_options_page( __( 'WP-Varnish Configuration', 'wp-varnish' ), 'WP-Varnish', 'manage_options', 'WPVarnish', array( $this, 'drawAdmin' ) );
 		}
 	}
 
@@ -445,7 +445,7 @@ class WPVarnish {
 	 * 
 	 * @global array $varnish_servers
 	 */
-	public function Admin() {
+	public function drawAdmin() {
 		global $varnish_servers;
 		
 		if ( $_SERVER["REQUEST_METHOD"] == "GET" ) {
