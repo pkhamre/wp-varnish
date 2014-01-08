@@ -580,16 +580,16 @@ class WPVarnish {
 							<th scope="row"><?php echo __( "Varnish Secret", 'wp-varnish' ); ?></th>
 						</tr>
 						<script>
-			<?php
-			$addrs = get_option( $this->wpv_addr_optname );
-			$ports = get_option( $this->wpv_port_optname );
-			$secrets = get_option( $this->wpv_secret_optname );
-			//echo "rowCount = $i\n";
-			for ( $i = 0; $i < count( $addrs ); $i++ ) {
-				// let's center the row creation in one spot, in javascript
-				echo "addRow('form-table', $i, '$addrs[$i]', $ports[$i], '$secrets[$i]');\n";
-			}
-			?>
+							<?php
+							$addrs = get_option( $this->wpv_addr_optname );
+							$ports = get_option( $this->wpv_port_optname );
+							$secrets = get_option( $this->wpv_secret_optname );
+							//echo "rowCount = $i\n";
+							for ( $i = 0; $i < count( $addrs ); $i++ ) {
+								// let's center the row creation in one spot, in javascript
+								echo "addRow('form-table', $i, '$addrs[$i]', $ports[$i], '$secrets[$i]');\n";
+							}
+							?>
 						</script>
 					</table>
 
@@ -600,27 +600,36 @@ class WPVarnish {
 							<td colspan="3"><input type="button" class="" name="wpvarnish_admin" value="+" onclick="addRow('form-table', rowCount)" /> <?php echo __( "Add one more server", 'wp-varnish' ); ?></td>
 						</tr>
 					</table>
-			<?php
-		}
-		?>
+					<?php
+				}
+				?>
 				<p><?php echo __( "Timeout", 'wp-varnish' ); ?>: <input class="small-text" type="text" name="wpvarnish_timeout" value="<?php echo $wpv_timeout_optval; ?>" /> <?php echo __( "seconds", 'wp-varnish' ); ?></p>
 
-				<p><input type="checkbox" name="wpvarnish_use_adminport" value="1" <?php if ( $wpv_use_adminport_optval == 1 ) echo 'checked ' ?>/> <?php echo __( "Use admin port instead of PURGE method.", 'wp-varnish' ); ?></p>
+				<p><input type="checkbox" name="wpvarnish_use_adminport" value="1" <?php checked($wpv_use_adminport_optval, 1 ); ?>/> <?php echo __( "Use admin port instead of PURGE method.", 'wp-varnish' ); ?></p>
 
-				<p><input type="checkbox" name="wpvarnish_update_pagenavi" value="1" <?php if ( $wpv_update_pagenavi_optval == 1 ) echo 'checked ' ?>/> <?php echo __( "Also purge all page navigation (experimental, use carefully, it will include a bit more load on varnish servers.)", 'wp-varnish' ); ?></p>
+				<p><input type="checkbox" name="wpvarnish_update_pagenavi" value="1" <?php checked($wpv_update_pagenavi_optval, 1 ); ?>/> <?php echo __( "Also purge all page navigation (experimental, use carefully, it will include a bit more load on varnish servers.)", 'wp-varnish' ); ?></p>
 
-				<p><input type="checkbox" name="wpvarnish_update_commentnavi" value="1" <?php if ( $wpv_update_commentnavi_optval == 1 ) echo 'checked ' ?>/> <?php echo __( "Also purge all comment navigation (experimental, use carefully, it will include a bit more load on varnish servers.)", 'wp-varnish' ); ?></p>
+				<p><input type="checkbox" name="wpvarnish_update_commentnavi" value="1" <?php checked($wpv_update_commentnavi_optval, 1 ); ?>/> <?php echo __( "Also purge all comment navigation (experimental, use carefully, it will include a bit more load on varnish servers.)", 'wp-varnish' ); ?></p>
 
-				<p><?php echo __( 'Varnish Version', 'wp-varnish' ); ?>: <select name="wpvarnish_vversion"><option value="2" <?php if ( $wpv_vversion_optval == 2 ) echo 'selected ' ?>/> 2 </option><option value="3" <?php if ( $wpv_vversion_optval == 3 ) echo 'selected ' ?>/> 3 </option></select></p>
+				<p>
+					<?php echo __( 'Varnish Version', 'wp-varnish' ); ?>: 
+					<select name="wpvarnish_vversion">
+						<option value="2" <?php selected( $wpv_vversion_optval, 2 ); ?>/> 2 </option>
+						<option value="3" <?php selected( $wpv_vversion_optval, 3 ); ?>/> 3 </option>
+					</select>
+				</p>
 
 				<p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __( "Save Changes", 'wp-varnish' ); ?>" /></p>
 
 				<p>
-		<?php echo __( 'Purge a URL', 'wp-varnish' ); ?>:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo get_bloginfo( 'url' ), '/'; ?>" />
+					<?php echo __( 'Purge a URL', 'wp-varnish' ); ?>:<input class="text" type="text" name="wpvarnish_purge_url" value="<?php echo get_bloginfo( 'url' ), '/'; ?>" />
 					<input type="submit" class="button-primary" name="wpvarnish_purge_url_submit" value="<?php echo __( "Purge", 'wp-varnish' ); ?>" />
 				</p>
 
-				<p class="submit"><input type="submit" class="button-primary" name="wpvarnish_clear_blog_cache" value="<?php echo __( "Purge All Blog Cache", 'wp-varnish' ); ?>" /> <?php echo __( "Use only if necessary, and carefully as this will include a bit more load on varnish servers.", 'wp-varnish' ); ?></p>
+				<p class="submit">
+					<input type="submit" class="button-primary" name="wpvarnish_clear_blog_cache" value="<?php echo __( "Purge All Blog Cache", 'wp-varnish' ); ?>" /> 
+					<?php echo __( "Use only if necessary, and carefully as this will include a bit more load on varnish servers.", 'wp-varnish' ); ?>
+				</p>
 			</form>
 		</div>
 		<?php
