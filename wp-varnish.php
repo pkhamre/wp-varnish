@@ -28,28 +28,11 @@ if ( !defined( 'ABSPATH' ) ) {
 }
 
 class WPVarnish {
-
-	public $wpv_addr_optname;
-	public $wpv_port_optname;
-	public $wpv_secret_optname;
-	public $wpv_timeout_optname;
-	public $wpv_update_pagenavi_optname;
-	public $wpv_update_commentnavi_optname;
 	
 	/**
 	 * Constructor, register hooks and init plugin
 	 */
 	public function __constuct() {
-		$this->wpv_addr_optname = "wpvarnish_addr";
-		$this->wpv_port_optname = "wpvarnish_port";
-		$this->wpv_secret_optname = "wpvarnish_secret";
-		$this->wpv_timeout_optname = "wpvarnish_timeout";
-		$this->wpvarnish_purge_url_optname = "wpvarnish_purge_url";
-		$this->wpv_update_pagenavi_optname = "wpvarnish_update_pagenavi";
-		$this->wpv_update_commentnavi_optname = "wpvarnish_update_commentnavi";
-		$this->wpv_use_adminport_optname = "wpvarnish_use_adminport";
-		$this->wpv_vversion_optname = "wpvarnish_vversion";
-		
 		// Option exists ?
 		$this->install();
 
@@ -123,36 +106,36 @@ class WPVarnish {
 		$wpv_use_adminport_optval = 0;
 		$wpv_vversion_optval = 2;
 		
-		if ( (get_option( $this->wpv_addr_optname ) == FALSE ) ) {
-			add_option( $this->wpv_addr_optname, $wpv_addr_optval, '', 'yes' );
+		if ( (get_option( "wpvarnish_addr" ) == FALSE ) ) {
+			add_option( "wpvarnish_addr", $wpv_addr_optval, '', 'yes' );
 		}
 
-		if ( (get_option( $this->wpv_port_optname ) == FALSE ) ) {
-			add_option( $this->wpv_port_optname, $wpv_port_optval, '', 'yes' );
+		if ( (get_option( "wpvarnish_port" ) == FALSE ) ) {
+			add_option( "wpvarnish_port", $wpv_port_optval, '', 'yes' );
 		}
 
-		if ( (get_option( $this->wpv_secret_optname ) == FALSE ) ) {
-			add_option( $this->wpv_secret_optname, $wpv_secret_optval, '', 'yes' );
+		if ( (get_option( "wpvarnish_secret" ) == FALSE ) ) {
+			add_option( "wpvarnish_secret", $wpv_secret_optval, '', 'yes' );
 		}
 
-		if ( (get_option( $this->wpv_timeout_optname ) == FALSE ) ) {
-			add_option( $this->wpv_timeout_optname, $wpv_timeout_optval, '', 'yes' );
+		if ( (get_option( "wpvarnish_timeout" ) == FALSE ) ) {
+			add_option( "wpvarnish_timeout", $wpv_timeout_optval, '', 'yes' );
 		}
 
-		if ( (get_option( $this->wpv_update_pagenavi_optname ) == FALSE ) ) {
-			add_option( $this->wpv_update_pagenavi_optname, $wpv_update_pagenavi_optval, '', 'yes' );
+		if ( (get_option( "wpvarnish_update_pagenavi" ) == FALSE ) ) {
+			add_option( "wpvarnish_update_pagenavi", $wpv_update_pagenavi_optval, '', 'yes' );
 		}
 
-		if ( (get_option( $this->wpv_update_commentnavi_optname ) == FALSE ) ) {
-			add_option( $this->wpv_update_commentnavi_optname, $wpv_update_commentnavi_optval, '', 'yes' );
+		if ( (get_option( "wpvarnish_update_commentnavi" ) == FALSE ) ) {
+			add_option( "wpvarnish_update_commentnavi", $wpv_update_commentnavi_optval, '', 'yes' );
 		}
 
-		if ( (get_option( $this->wpv_use_adminport_optname ) == FALSE ) ) {
-			add_option( $this->wpv_use_adminport_optname, $wpv_use_adminport_optval, '', 'yes' );
+		if ( (get_option( "wpvarnish_use_adminport" ) == FALSE ) ) {
+			add_option( "wpvarnish_use_adminport", $wpv_use_adminport_optval, '', 'yes' );
 		}
 
-		if ( (get_option( $this->wpv_vversion_optname ) == FALSE ) ) {
-			add_option( $this->wpv_vversion_optname, $wpv_vversion_optval, '', 'yes' );
+		if ( (get_option( "wpvarnish_vversion" ) == FALSE ) ) {
+			add_option( "wpvarnish_vversion", $wpv_vversion_optval, '', 'yes' );
 		}
 	}
 
@@ -216,7 +199,7 @@ class WPVarnish {
 		// By default, only the first page of the archives is purged. If
 		// 'wpv_update_pagenavi_optname' is checked, then all the pages of each
 		// archive are purged.
-		if ( get_option( $this->wpv_update_pagenavi_optname ) == 1 ) {
+		if ( get_option( "wpvarnish_update_pagenavi" ) == 1 ) {
 			// Purge all pages of the archive.
 			$archive_pattern = '(?:page/[\d]+/)?$';
 		} else {
@@ -346,7 +329,7 @@ class WPVarnish {
 			$this->PurgeObject( $wpv_url . 'feed/(?:(atom|rdf)/)?$' );
 			// For paged comments
 			if ( intval( get_option( 'page_comments', 0 ) ) == 1 ) {
-				if ( get_option( $this->wpv_update_commentnavi_optname ) == 1 ) {
+				if ( get_option( "wpvarnish_update_commentnavi" ) == 1 ) {
 					$this->PurgeObject( $wpv_url . 'comment-page-[\d]+/(?:#comments)?$' );
 				}
 			}
@@ -495,52 +478,52 @@ class WPVarnish {
 				if ( isset( $_POST['wpvarnish_admin'] ) ) {
 					self::cleanSubmittedData( 'wpvarnish_port', '/[^0-9]/' );
 					self::cleanSubmittedData( 'wpvarnish_addr', '/[^0-9.]/' );
-					if ( !empty( $_POST["$this->wpv_addr_optname"] ) ) {
-						$wpv_addr_optval = $_POST["$this->wpv_addr_optname"];
-						update_option( $this->wpv_addr_optname, $wpv_addr_optval );
+					if ( !empty( $_POST["wpvarnish_addr"] ) ) {
+						$wpv_addr_optval = $_POST["wpvarnish_addr"];
+						update_option( "wpvarnish_addr", $wpv_addr_optval );
 					}
 
-					if ( !empty( $_POST["$this->wpv_port_optname"] ) ) {
-						$wpv_port_optval = $_POST["$this->wpv_port_optname"];
-						update_option( $this->wpv_port_optname, $wpv_port_optval );
+					if ( !empty( $_POST["wpvarnish_port"] ) ) {
+						$wpv_port_optval = $_POST["wpvarnish_port"];
+						update_option( "wpvarnish_port", $wpv_port_optval );
 					}
 
-					if ( !empty( $_POST["$this->wpv_secret_optname"] ) ) {
-						$wpv_secret_optval = $_POST["$this->wpv_secret_optname"];
-						update_option( $this->wpv_secret_optname, $wpv_secret_optval );
+					if ( !empty( $_POST[wpvarnish_secret] ) ) {
+						$wpv_secret_optval = $_POST["wpvarnish_secret"];
+						update_option( "wpvarnish_secret", $wpv_secret_optval );
 					}
 
-					if ( !empty( $_POST["$this->wpv_timeout_optname"] ) ) {
-						$wpv_timeout_optval = $_POST["$this->wpv_timeout_optname"];
-						update_option( $this->wpv_timeout_optname, $wpv_timeout_optval );
+					if ( !empty( $_POST["wpvarnish_timeout"] ) ) {
+						$wpv_timeout_optval = $_POST["wpvarnish_timeout"];
+						update_option( "wpvarnish_timeout", $wpv_timeout_optval );
 					}
 
-					if ( !empty( $_POST["$this->wpv_update_pagenavi_optname"] ) ) {
-						update_option( $this->wpv_update_pagenavi_optname, 1 );
+					if ( !empty( $_POST["wpvarnish_update_pagenavi"] ) ) {
+						update_option( "wpvarnish_update_pagenavi", 1 );
 					} else {
-						update_option( $this->wpv_update_pagenavi_optname, 0 );
+						update_option( "wpvarnish_update_pagenavi", 0 );
 					}
 
-					if ( !empty( $_POST["$this->wpv_update_commentnavi_optname"] ) ) {
-						update_option( $this->wpv_update_commentnavi_optname, 1 );
+					if ( !empty( $_POST["wpvarnish_update_commentnavi"] ) ) {
+						update_option( "wpvarnish_update_commentnavi", 1 );
 					} else {
-						update_option( $this->wpv_update_commentnavi_optname, 0 );
+						update_option( "wpvarnish_update_commentnavi", 0 );
 					}
 
-					if ( !empty( $_POST["$this->wpv_use_adminport_optname"] ) ) {
-						update_option( $this->wpv_use_adminport_optname, 1 );
+					if ( !empty( $_POST["wpvarnish_use_adminport"] ) ) {
+						update_option( "wpvarnish_use_adminport", 1 );
 					} else {
-						update_option( $this->wpv_use_adminport_optname, 0 );
+						update_option( "wpvarnish_use_adminport", 0 );
 					}
 
-					if ( !empty( $_POST["$this->wpv_vversion_optname"] ) ) {
-						$wpv_vversion_optval = $_POST["$this->wpv_vversion_optname"];
-						update_option( $this->wpv_vversion_optname, $wpv_vversion_optval );
+					if ( !empty( $_POST["wpvarnish_vversion"] ) ) {
+						$wpv_vversion_optval = $_POST["wpvarnish_vversion"];
+						update_option( "wpvarnish_vversion", $wpv_vversion_optval );
 					}
 				}
 
 				if ( isset( $_POST['wpvarnish_purge_url_submit'] ) ) {
-					$this->PurgeURL( $_POST["$this->wpvarnish_purge_url_optname"] );
+					$this->PurgeURL( $_POST["wpvarnish_purge_url"] );
 				}
 
 				if ( isset( $_POST['wpvarnish_clear_blog_cache'] ) )
@@ -551,11 +534,11 @@ class WPVarnish {
 			}
 		}
 
-		$wpv_timeout_optval = get_option( $this->wpv_timeout_optname );
-		$wpv_update_pagenavi_optval = get_option( $this->wpv_update_pagenavi_optname );
-		$wpv_update_commentnavi_optval = get_option( $this->wpv_update_commentnavi_optname );
-		$wpv_use_adminport_optval = get_option( $this->wpv_use_adminport_optname );
-		$wpv_vversion_optval = get_option( $this->wpv_vversion_optname );
+		$wpv_timeout_optval = get_option( "wpvarnish_timeout" );
+		$wpv_update_pagenavi_optval = get_option( "wpvarnish_update_pagenavi" );
+		$wpv_update_commentnavi_optval = get_option( "wpvarnish_update_commentnavi" );
+		$wpv_use_adminport_optval = get_option( "wpvarnish_use_adminport" );
+		$wpv_vversion_optval = get_option( "wpvarnish_vversion" );
 		?>
 		<div class="wrap">
 			<script type="text/javascript" src="<?php echo plugins_url( 'wp-varnish.js', __FILE__ ); ?>"></script>
@@ -590,9 +573,9 @@ class WPVarnish {
 						</tr>
 						<script>
 							<?php
-							$addrs = get_option( $this->wpv_addr_optname );
-							$ports = get_option( $this->wpv_port_optname );
-							$secrets = get_option( $this->wpv_secret_optname );
+							$addrs = get_option( "wpvarnish_addr" );
+							$ports = get_option( "wpvarnish_port" );
+							$secrets = get_option( "wpvarnish_secret" );
 							//echo "rowCount = $i\n";
 							for ( $i = 0; $i < count( $addrs ); $i++ ) {
 								// let's center the row creation in one spot, in javascript
@@ -662,13 +645,13 @@ class WPVarnish {
 				$wpv_secret[] = $secret;
 			}
 		} else {
-			$wpv_purgeaddr = get_option( $this->wpv_addr_optname );
-			$wpv_purgeport = get_option( $this->wpv_port_optname );
-			$wpv_secret = get_option( $this->wpv_secret_optname );
+			$wpv_purgeaddr = get_option( "wpvarnish_addr" );
+			$wpv_purgeport = get_option( "wpvarnish_port" );
+			$wpv_secret = get_option( "wpvarnish_secret" );
 		}
 
-		$wpv_timeout = get_option( $this->wpv_timeout_optname );
-		$wpv_use_adminport = get_option( $this->wpv_use_adminport_optname );
+		$wpv_timeout = get_option( "wpvarnish_timeout" );
+		$wpv_use_adminport = get_option( "wpvarnish_use_adminport" );
 		
 		if ( isset( $varnish_version ) && in_array( $varnish_version, array( 2, 3 ) ) )
 			$wpv_vversion_optval = $varnish_version;
