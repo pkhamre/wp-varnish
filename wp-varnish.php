@@ -450,8 +450,9 @@ class WPVarnish {
 		
 		if ( $_SERVER["REQUEST_METHOD"] == "GET" ) {
 			if ( current_user_can( 'manage_options' ) ) {
-
-				$nonce = $_REQUEST['_wpnonce'];
+				
+				// Get nonce value
+				$nonce = ( isset($_REQUEST['_wpnonce']) ) ? $_REQUEST['_wpnonce'] : '';
 
 				if ( isset( $_GET['wpvarnish_clear_blog_cache'] ) && wp_verify_nonce( $nonce, 'wp-varnish' ) ) {
 					$this->PurgeAll();
@@ -460,7 +461,7 @@ class WPVarnish {
 				}
 
 				if ( isset( $_GET['wpvarnish_clear_post'] ) && wp_verify_nonce( $nonce, 'wp-varnish' ) ) {
-					$this->PurgePost( $_GET['post_id'] );
+					$this->PurgePost( (int) $_GET['post_id'] );
 					wp_redirect( 'Location: ' . admin_url( 'admin.php?page=WPVarnish' ) );
 					exit();
 				}
