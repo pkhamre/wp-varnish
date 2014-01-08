@@ -32,7 +32,7 @@ class WPVarnish {
 	/**
 	 * Constructor, register hooks and init plugin
 	 */
-	public function __constuct() {
+	public function __construct() {
 		// Option exists ?
 		$this->install();
 
