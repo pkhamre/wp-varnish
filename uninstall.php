@@ -16,4 +16,3 @@ delete_option( 'wpvarnish_update_pagenavi' );
 delete_option( 'wpvarnish_update_commentnavi' );
 delete_option( 'wpvarnish_use_adminport' );
 delete_option( 'wpvarnish_vversion' );
-?>
