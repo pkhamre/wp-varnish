@@ -606,7 +606,7 @@ class WPVarnish {
 				if ( preg_match( '/(\w+)\s+Authentication required./', $buf, $matches ) ) {
 					# get the secret
 					$secret = $wpv_secret[$i];
-					fwrite( $varnish_sock, "auth " . $this->WPAuth( $matches[1], $secret ) . "\n" );
+					fwrite( $varnish_sock, "auth " . self::WPAuth( $matches[1], $secret ) . "\n" );
 					$buf = fread( $varnish_sock, 1024 );
 					if ( !preg_match( '/^200/', $buf ) ) {
 						error_log( "wp-varnish error: authentication failed using admin port on server $wpv_purgeaddr[$i]:$wpv_purgeport[$i]" );
@@ -629,8 +629,15 @@ class WPVarnish {
 			fclose( $varnish_sock );
 		}
 	}
-
-	public function WPAuth( $challenge, $secret ) {
+	
+	/**
+	 * Build varnish auth key
+	 * 
+	 * @param string $challenge
+	 * @param string $secret
+	 * @return string
+	 */
+	public static function WPAuth( $challenge, $secret ) {
 		$ctx = hash_init( 'sha256' );
 		hash_update( $ctx, $challenge );
 		hash_update( $ctx, "\n" );
