@@ -35,7 +35,10 @@ class WPVarnish {
 	public $wpv_timeout_optname;
 	public $wpv_update_pagenavi_optname;
 	public $wpv_update_commentnavi_optname;
-
+	
+	/**
+	 * Constructor, register hooks and init plugin
+	 */
 	public function __constuct() {
 		$this->wpv_addr_optname = "wpvarnish_addr";
 		$this->wpv_port_optname = "wpvarnish_port";
@@ -144,22 +147,37 @@ class WPVarnish {
 		//add_action('plugins_loaded',array($this, 'PurgeAll'), 99);
 	}
 
+	/**
+	 * Load plugin translation file
+	 */
 	public function initLocalization() {
 		load_plugin_textdomain( 'wp-varnish', false, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
 	}
 
-	// WPVarnishPurgeAll - Using a regex, clear all blog cache. Use carefully.
+	/**
+	 * Clear all blog cache, using a regex. Use carefully !
+	 */
 	public function PurgeAll() {
 		$this->PurgeObject( '/.*' );
 	}
 
-	// WPVarnishPurgeURL - Using a URL, clear the cache
+	/**
+	 * Clear cache using a URL, clear the cache
+	 * 
+	 * @param string $wpv_purl
+	 */
 	public function PurgeURL( $wpv_purl ) {
 		$wpv_purl = preg_replace( '#^https?://[^/]+#i', '', $wpv_purl );
 		$this->PurgeObject( $wpv_purl );
 	}
 
-	//wrapper on WPVarnishPurgeCommonObjects for transition_post_status
+	/**
+	 * wrapper on PurgeCommonObjects method for transition_post_status hook
+	 * 
+	 * @param string $old
+	 * @param string $new
+	 * @param WP_Post $post
+	 */
 	public function PurgeCommonObjectsStatus( $old, $new, $post ) {
 		if ( $old != $new ) {
 			if ( $old == 'publish' || $new == 'publish' ) {
@@ -168,7 +186,12 @@ class WPVarnish {
 		}
 	}
 
-	// Purge related objects
+	/**
+	 * Purge related objects
+	 * 
+	 * @param integer $post_id
+	 * @return boolean
+	 */
 	public function PurgeCommonObjects( $post_id ) {
 
 		$post = get_post( $post_id );
@@ -177,7 +200,7 @@ class WPVarnish {
 		// post object.
 		if ( !is_object( $post ) || !isset( $post->post_type ) || !in_array( get_post_type( $post ), array( 'post' ) ) ) {
 			// Do nothing for pages, attachments.
-			return;
+			return false;
 		}
 
 		// NOTE: Policy for archive purging
@@ -252,9 +275,17 @@ class WPVarnish {
 		// Daily Archive
 		$archive_day_url = preg_replace( '#^https?://[^/]+#i', '', get_day_link( $archive_year, $archive_month, $archive_day ) );
 		$this->PurgeObject( $archive_day_url . $archive_pattern );
+		
+		return true;
 	}
 
-	//wrapper on WPVarnishPurgePost for transition_post_status
+	/**
+	 * wrapper on PurgePost method for transition_post_status hook
+	 * 
+	 * @param string $old
+	 * @param string $new
+	 * @param WP_Post $post
+	 */
 	public function PurgePostStatus( $old, $new, $post ) {
 		if ( $old != $new ) {
 			if ( $old == 'publish' || $new == 'publish' ) {
@@ -263,13 +294,19 @@ class WPVarnish {
 		}
 	}
 
-	// WPVarnishPurgePost - Purges a post object
+	/**
+	 * Purges a post object
+	 * 
+	 * @param integer $post_id
+	 * @param boolean $purge_comments
+	 * @return boolean
+	 */
 	public function PurgePost( $post_id, $purge_comments = false ) {
 
 		$post = get_post( $post_id );
 		// We need a post object, so we perform a few checks.
 		if ( !is_object( $post ) || !isset( $post->post_type ) || !in_array( get_post_type( $post ), array( 'post', 'page', 'attachment' ) ) ) {
-			return;
+			return false;
 		}
 
 		//$wpv_url = get_permalink($post->ID);
@@ -324,14 +361,25 @@ class WPVarnish {
 				}
 			}
 		}
+		
+		return true;
 	}
 
-	// wrapper on WPVarnishPurgePostComments for comment status changes
+	/**
+	 * Wrapper on PurgePostComments for comment status changes hook
+	 * 
+	 * @param integer $comment_id
+	 * @param string $new_comment_status
+	 */
 	public function PurgePostCommentsStatus( $comment_id, $new_comment_status ) {
 		$this->PurgePostComments( $comment_id );
 	}
 
-	// WPVarnishPurgePostComments - Purge all comments pages from a post
+	/**
+	 * Purge all comments pages from a post
+	 * 
+	 * @param integer $comment_id
+	 */
 	public function PurgePostComments( $comment_id ) {
 		$comment = get_comment( $comment_id );
 		$post = get_post( $comment->comment_post_ID );
@@ -349,28 +397,44 @@ class WPVarnish {
 		$this->PurgeObject( '/.*comments_popup=' . $post->ID . '.*' );
 	}
 
+	/**
+	 * Get post id for current page
+	 * 
+	 * @global array $posts
+	 * @global integer $comment_post_ID
+	 * @global integer $post_ID
+	 * @return integer
+	 */
 	public function getPostID() {
 		global $posts, $comment_post_ID, $post_ID;
 
 		if ( $post_ID ) {
-			return $post_ID;
+			return (int) $post_ID;
 		} elseif ( $comment_post_ID ) {
-			return $comment_post_ID;
+			return (int) $comment_post_ID;
 		} elseif ( is_single() || is_page() && count( $posts ) ) {
-			return $posts[0]->ID;
+			return (int) $posts[0]->ID;
 		} elseif ( isset( $_REQUEST['p'] ) ) {
-			return (integer) $_REQUEST['p'];
+			return (int) $_REQUEST['p'];
 		}
 
 		return 0;
 	}
 
+	/**
+	 * Add plugin settings page on menu
+	 */
 	public function AdminMenu() {
 		if ( !defined( 'VARNISH_HIDE_ADMINMENU' ) ) {
 			add_options_page( __( 'WP-Varnish Configuration', 'wp-varnish' ), 'WP-Varnish', 1, '', array( $this, 'Admin' ) );
 		}
 	}
 
+	/**
+	 * Add links for purge cache on WP admin bar
+	 * 
+	 * @param WP_Admin_Bar $admin_bar
+	 */
 	public function AdminBarLinks( $admin_bar ) {
 		$admin_bar->add_menu( array(
 			'id' => 'wp-varnish',
@@ -391,7 +455,12 @@ class WPVarnish {
 		) );
 	}
 
-	// WpVarnishAdmin - Draw the administration interface.
+	/**
+	 * Draw the administration interface.
+	 * 
+	 * @global array $varnish_servers
+	 * @global integer $varnish_version
+	 */
 	public function Admin() {
 		global $varnish_servers, $varnish_version;
 		
@@ -557,8 +626,13 @@ class WPVarnish {
 		<?php
 	}
 
-	// WPVarnishPurgeObject - Takes a location as an argument and purges this object
-	// from the varnish cache.
+	/**
+	 * Takes a location as an argument and purges this object from the varnish cache.
+	 * 
+	 * @global array $varnish_servers
+	 * @global integer $varnish_version
+	 * @param string $wpv_url
+	 */
 	public function PurgeObject( $wpv_url ) {
 		global $varnish_servers, $varnish_version;
 
@@ -649,10 +723,19 @@ class WPVarnish {
 		return $sha256;
 	}
 	
-	// Helper functions
-	// FIXME: should do this in the admin console js, not here   
-	// normally I hate cleaning data and would rather validate before submit
-	// but, this fixes the problem in the cleanest method for now
+	
+	/**
+	 * Clean data submitted by user, apply a regexp
+	 * 
+	 * Helper functions
+	 * FIXME: should do this in the admin console js, not here   
+	 * normally I hate cleaning data and would rather validate before submit
+	 * but, this fixes the problem in the cleanest method for now
+	 * 
+	 * @param string $varname
+	 * @param string $regexp
+	 * @return boolean
+	 */
 	public static function cleanSubmittedData( $varname, $regexp ) {
 		if ( !isset($_POST[$varname] ) ) {
 			return false;
