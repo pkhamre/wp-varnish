@@ -655,4 +655,3 @@ function cleanSubmittedData($varname, $regexp) {
     $_POST[$varname][$key] = preg_replace($regexp,'',$value);
   }
 }
-?>
