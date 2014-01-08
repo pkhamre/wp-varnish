@@ -442,10 +442,9 @@ class WPVarnish {
 	 * Draw the administration interface.
 	 * 
 	 * @global array $varnish_servers
-	 * @global integer $varnish_version
 	 */
 	public function Admin() {
-		global $varnish_servers, $varnish_version;
+		global $varnish_servers;
 		
 		if ( $_SERVER["REQUEST_METHOD"] == "GET" ) {
 			if ( current_user_can( 'manage_options' ) ) {
@@ -535,8 +534,8 @@ class WPVarnish {
 					if ( defined( 'VARNISH_SHOWCFG' ) ) {
 						echo "<h3>" . __( "Current configuration:", 'wp-varnish' ) . "</h3>\n";
 						echo "<ul>";
-						if ( isset( $varnish_version ) && $varnish_version ) {
-							echo "<li>" . __( "Version: ", 'wp-varnish' ) . $varnish_version . "</li>";
+						if ( self::isHardcodedVarnishVersion() ) {
+							echo "<li>" . __( "Version: ", 'wp-varnish' ) . self::getVarnishVersion() . "</li>";
 						}
 						foreach ( $varnish_servers as $server ) {
 							@list ($host, $port, $secret) = explode( ':', $server );
@@ -618,7 +617,6 @@ class WPVarnish {
 	 * Takes a location as an argument and purges this object from the varnish cache.
 	 * 
 	 * @global array $varnish_servers
-	 * @global integer $varnish_version
 	 * @param string $wpv_url
 	 */
 	public function PurgeObject( $wpv_url ) {
