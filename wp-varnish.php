@@ -409,7 +409,7 @@ class WPVarnish {
 	 */
 	public function AdminMenu() {
 		if ( !defined( 'VARNISH_HIDE_ADMINMENU' ) ) {
-			add_options_page( __( 'WP-Varnish Configuration', 'wp-varnish' ), 'WP-Varnish', 1, '', array( $this, 'Admin' ) );
+			add_options_page( __( 'WP-Varnish Configuration', 'wp-varnish' ), 'WP-Varnish', 'manage_options', 'WPVarnish', array( $this, 'Admin' ) );
 		}
 	}
 
