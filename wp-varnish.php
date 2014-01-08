@@ -470,23 +470,19 @@ class WPVarnish {
 					self::cleanSubmittedData( 'wpvarnish_port', '/[^0-9]/' );
 					self::cleanSubmittedData( 'wpvarnish_addr', '/[^0-9.]/' );
 					if ( !empty( $_POST["wpvarnish_addr"] ) ) {
-						$wpv_addr_optval = $_POST["wpvarnish_addr"];
-						update_option( "wpvarnish_addr", $wpv_addr_optval );
+						update_option( "wpvarnish_addr", $_POST["wpvarnish_addr"] );
 					}
 
 					if ( !empty( $_POST["wpvarnish_port"] ) ) {
-						$wpv_port_optval = $_POST["wpvarnish_port"];
-						update_option( "wpvarnish_port", $wpv_port_optval );
+						update_option( "wpvarnish_port", $_POST["wpvarnish_port"] );
 					}
 
 					if ( !empty( $_POST[wpvarnish_secret] ) ) {
-						$wpv_secret_optval = $_POST["wpvarnish_secret"];
-						update_option( "wpvarnish_secret", $wpv_secret_optval );
+						update_option( "wpvarnish_secret", $_POST["wpvarnish_secret"] );
 					}
 
 					if ( !empty( $_POST["wpvarnish_timeout"] ) ) {
-						$wpv_timeout_optval = $_POST["wpvarnish_timeout"];
-						update_option( "wpvarnish_timeout", $wpv_timeout_optval );
+						update_option( "wpvarnish_timeout", $_POST["wpvarnish_timeout"] );
 					}
 
 					if ( !empty( $_POST["wpvarnish_update_pagenavi"] ) ) {
@@ -508,8 +504,7 @@ class WPVarnish {
 					}
 
 					if ( !empty( $_POST["wpvarnish_vversion"] ) ) {
-						$wpv_vversion_optval = $_POST["wpvarnish_vversion"];
-						update_option( "wpvarnish_vversion", $wpv_vversion_optval );
+						update_option( "wpvarnish_vversion", $_POST["wpvarnish_vversion"] );
 					}
 				}
 
@@ -517,19 +512,15 @@ class WPVarnish {
 					$this->PurgeURL( $_POST["wpvarnish_purge_url"] );
 				}
 
-				if ( isset( $_POST['wpvarnish_clear_blog_cache'] ) )
+				if ( isset( $_POST['wpvarnish_clear_blog_cache'] ) ) {
 					$this->PurgeAll();
+				}
 				?><div class="updated"><p><?php echo __( 'Settings Saved!', 'wp-varnish' ); ?></p></div><?php
 			} else {
 				?><div class="updated"><p><?php echo __( 'You do not have the privileges.', 'wp-varnish' ); ?></p></div><?php
 			}
 		}
-
-		$wpv_timeout_optval = get_option( "wpvarnish_timeout" );
-		$wpv_update_pagenavi_optval = get_option( "wpvarnish_update_pagenavi" );
-		$wpv_update_commentnavi_optval = get_option( "wpvarnish_update_commentnavi" );
-		$wpv_use_adminport_optval = get_option( "wpvarnish_use_adminport" );
-		$wpv_vversion_optval = get_option( "wpvarnish_vversion" );
+		
 		?>
 		<div class="wrap">
 			<script type="text/javascript" src="<?php echo plugins_url( 'wp-varnish.js', __FILE__ ); ?>"></script>
@@ -544,8 +535,9 @@ class WPVarnish {
 					if ( defined( 'VARNISH_SHOWCFG' ) ) {
 						echo "<h3>" . __( "Current configuration:", 'wp-varnish' ) . "</h3>\n";
 						echo "<ul>";
-						if ( isset( $varnish_version ) && $varnish_version )
+						if ( isset( $varnish_version ) && $varnish_version ) {
 							echo "<li>" . __( "Version: ", 'wp-varnish' ) . $varnish_version . "</li>";
+						}
 						foreach ( $varnish_servers as $server ) {
 							@list ($host, $port, $secret) = explode( ':', $server );
 							echo "<li>" . __( "Server: ", 'wp-varnish' ) . $host . "<br/>" . __( "Port: ", 'wp-varnish' ) . $port . "</li>";
@@ -586,20 +578,24 @@ class WPVarnish {
 					<?php
 				}
 				?>
-				<p><?php echo __( "Timeout", 'wp-varnish' ); ?>: <input class="small-text" type="text" name="wpvarnish_timeout" value="<?php echo $wpv_timeout_optval; ?>" /> <?php echo __( "seconds", 'wp-varnish' ); ?></p>
+				<p><?php echo __( "Timeout", 'wp-varnish' ); ?>: <input class="small-text" type="text" name="wpvarnish_timeout" value="<?php echo get_option( "wpvarnish_timeout" ); ?>" /> <?php echo __( "seconds", 'wp-varnish' ); ?></p>
 
-				<p><input type="checkbox" name="wpvarnish_use_adminport" value="1" <?php checked($wpv_use_adminport_optval, 1 ); ?>/> <?php echo __( "Use admin port instead of PURGE method.", 'wp-varnish' ); ?></p>
+				<p><input type="checkbox" name="wpvarnish_use_adminport" value="1" <?php checked(get_option( "wpvarnish_use_adminport" ), 1 ); ?>/> <?php echo __( "Use admin port instead of PURGE method.", 'wp-varnish' ); ?></p>
 
-				<p><input type="checkbox" name="wpvarnish_update_pagenavi" value="1" <?php checked($wpv_update_pagenavi_optval, 1 ); ?>/> <?php echo __( "Also purge all page navigation (experimental, use carefully, it will include a bit more load on varnish servers.)", 'wp-varnish' ); ?></p>
+				<p><input type="checkbox" name="wpvarnish_update_pagenavi" value="1" <?php checked(get_option( "wpvarnish_update_pagenavi" ), 1 ); ?>/> <?php echo __( "Also purge all page navigation (experimental, use carefully, it will include a bit more load on varnish servers.)", 'wp-varnish' ); ?></p>
 
-				<p><input type="checkbox" name="wpvarnish_update_commentnavi" value="1" <?php checked($wpv_update_commentnavi_optval, 1 ); ?>/> <?php echo __( "Also purge all comment navigation (experimental, use carefully, it will include a bit more load on varnish servers.)", 'wp-varnish' ); ?></p>
+				<p><input type="checkbox" name="wpvarnish_update_commentnavi" value="1" <?php checked(get_option( "wpvarnish_update_commentnavi" ), 1 ); ?>/> <?php echo __( "Also purge all comment navigation (experimental, use carefully, it will include a bit more load on varnish servers.)", 'wp-varnish' ); ?></p>
 
 				<p>
 					<?php echo __( 'Varnish Version', 'wp-varnish' ); ?>: 
-					<select name="wpvarnish_vversion">
-						<option value="2" <?php selected( $wpv_vversion_optval, 2 ); ?>/> 2 </option>
-						<option value="3" <?php selected( $wpv_vversion_optval, 3 ); ?>/> 3 </option>
-					</select>
+					<?php if ( self::isHardcodedVarnishVersion() ) : ?>
+						<code><?php echo self::getVarnishVersion(); ?></code>
+					<?php else: ?>
+						<select name="wpvarnish_vversion">
+							<option value="2" <?php selected( get_option( "wpvarnish_vversion" ), 2 ); ?>/> 2 </option>
+							<option value="3" <?php selected( get_option( "wpvarnish_vversion" ), 3 ); ?>/> 3 </option>
+						</select>
+					<?php endif; ?>
 				</p>
 
 				<p class="submit"><input type="submit" class="button-primary" name="wpvarnish_admin" value="<?php echo __( "Save Changes", 'wp-varnish' ); ?>" /></p>
