@@ -37,8 +37,6 @@ class WPVarnish {
 	public $wpv_update_commentnavi_optname;
 
 	public function __constuct() {
-		global $post;
-
 		$this->wpv_addr_optname = "wpvarnish_addr";
 		$this->wpv_port_optname = "wpvarnish_port";
 		$this->wpv_secret_optname = "wpvarnish_secret";
@@ -395,6 +393,8 @@ class WPVarnish {
 
 	// WpVarnishAdmin - Draw the administration interface.
 	public function WPVarnishAdmin() {
+		global $varnish_servers, $varnish_version;
+		
 		if ( $_SERVER["REQUEST_METHOD"] == "GET" ) {
 			if ( current_user_can( 'manage_options' ) ) {
 
@@ -484,8 +484,6 @@ class WPVarnish {
 			<form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
 				<?php
 				// Can't be edited - already defined in wp-config.php
-				global $varnish_servers;
-				global $varnish_version;
 				if ( is_array( $varnish_servers ) ) {
 					echo "<p>" . __( "These values can't be edited since there's a global configuration located in <em>wp-config.php</em>. If you want to change these settings, please update the file or contact the administrator.", 'wp-varnish' ) . "</p>\n";
 					// Also, if defined, show the varnish servers configured (VARNISH_SHOWCFG)
@@ -560,7 +558,7 @@ class WPVarnish {
 	// WPVarnishPurgeObject - Takes a location as an argument and purges this object
 	// from the varnish cache.
 	public function WPVarnishPurgeObject( $wpv_url ) {
-		global $varnish_servers;
+		global $varnish_servers, $varnish_version;
 
 		if ( is_array( $varnish_servers ) ) {
 			foreach ( $varnish_servers as $server ) {
@@ -577,7 +575,7 @@ class WPVarnish {
 
 		$wpv_timeout = get_option( $this->wpv_timeout_optname );
 		$wpv_use_adminport = get_option( $this->wpv_use_adminport_optname );
-		global $varnish_version;
+		
 		if ( isset( $varnish_version ) && in_array( $varnish_version, array( 2, 3 ) ) )
 			$wpv_vversion_optval = $varnish_version;
 		else
