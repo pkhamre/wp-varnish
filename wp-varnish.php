@@ -643,13 +643,23 @@ class WPVarnish {
 	}
 	
 	// Helper functions
-	public static function cleanSubmittedData( $varname, $regexp ) {
 	// FIXME: should do this in the admin console js, not here   
 	// normally I hate cleaning data and would rather validate before submit
 	// but, this fixes the problem in the cleanest method for now
-		foreach ( $_POST[$varname] as $key => $value ) {
-			$_POST[$varname][$key] = preg_replace( $regexp, '', $value );
+	public static function cleanSubmittedData( $varname, $regexp ) {
+		if ( !isset($_POST[$varname] ) ) {
+			return false;
 		}
+		
+		if ( is_array( $_POST[$varname]) ) {
+			foreach ( $_POST[$varname] as $key => $value ) {
+				$_POST[$varname][$key] = preg_replace( $regexp, '', $value );
+			} 
+		} else {
+			$_POST[$varname]= preg_replace( $regexp, '', $_POST[$varname] );
+		}
+		
+		return true;
 	}
 
 
