@@ -88,88 +88,88 @@ class WPVarnish {
 		}
 
 		// Localization init
-		add_action( 'init', array( $this, 'WPVarnishLocalization' ) );
+		add_action( 'init', array( $this, 'initLocalization' ) );
 
 		// Add Administration Interface
-		add_action( 'admin_menu', array( $this, 'WPVarnishAdminMenu' ) );
+		add_action( 'admin_menu', array( $this, 'AdminMenu' ) );
 
 		// Add Purge Links to Admin Bar
-		add_action( 'admin_bar_menu', array( $this, 'WPVarnishAdminBarLinks' ), 100 );
+		add_action( 'admin_bar_menu', array( $this, 'AdminBarLinks' ), 100 );
 
 		// When posts/pages are published, edited or deleted
 		// 'edit_post' is not used as it is also executed when a comment is changed,
 		// causing the plugin to purge several URLs (WPVarnishPurgeCommonObjects)
 		// that do not need purging.
 		// When a post or custom post type is published, or if it is edited and its status is "published".
-		add_action( 'publish_post', array( $this, 'WPVarnishPurgePost' ), 99 );
-		add_action( 'publish_post', array( $this, 'WPVarnishPurgeCommonObjects' ), 99 );
+		add_action( 'publish_post', array( $this, 'PurgePost' ), 99 );
+		add_action( 'publish_post', array( $this, 'PurgeCommonObjects' ), 99 );
 		// When a page is published, or if it is edited and its status is "published".
-		add_action( 'publish_page', array( $this, 'WPVarnishPurgePost' ), 99 );
-		add_action( 'publish_page', array( $this, 'WPVarnishPurgeCommonObjects' ), 99 );
+		add_action( 'publish_page', array( $this, 'PurgePost' ), 99 );
+		add_action( 'publish_page', array( $this, 'PurgeCommonObjects' ), 99 );
 		// When an attachment is updated.
-		add_action( 'edit_attachment', array( $this, 'WPVarnishPurgePost' ), 99 );
-		add_action( 'edit_attachment', array( $this, 'WPVarnishPurgeCommonObjects' ), 99 );
+		add_action( 'edit_attachment', array( $this, 'PurgePost' ), 99 );
+		add_action( 'edit_attachment', array( $this, 'PurgeCommonObjects' ), 99 );
 		// Runs just after a post is added via email.
-		add_action( 'publish_phone', array( $this, 'WPVarnishPurgePost' ), 99 );
-		add_action( 'publish_phone', array( $this, 'WPVarnishPurgeCommonObjects' ), 99 );
+		add_action( 'publish_phone', array( $this, 'PurgePost' ), 99 );
+		add_action( 'publish_phone', array( $this, 'PurgeCommonObjects' ), 99 );
 		// Runs when a post is published via XMLRPC request, or if it is edited via XMLRPC and its status is "published".
-		add_action( 'xmlrpc_publish_post', array( $this, 'WPVarnishPurgePost' ), 99 );
-		add_action( 'xmlrpc_publish_post', array( $this, 'WPVarnishPurgeCommonObjects' ), 99 );
+		add_action( 'xmlrpc_publish_post', array( $this, 'PurgePost' ), 99 );
+		add_action( 'xmlrpc_publish_post', array( $this, 'PurgeCommonObjects' ), 99 );
 		// Runs when a future post or page is published.
-		add_action( 'publish_future_post', array( $this, 'WPVarnishPurgePost' ), 99 );
-		add_action( 'publish_future_post', array( $this, 'WPVarnishPurgeCommonObjects' ), 99 );
+		add_action( 'publish_future_post', array( $this, 'PurgePost' ), 99 );
+		add_action( 'publish_future_post', array( $this, 'PurgeCommonObjects' ), 99 );
 		// When post status is changed
-		add_action( 'transition_post_status', array( $this, 'WPVarnishPurgePostStatus' ), 99, 3 );
-		add_action( 'transition_post_status', array( $this, 'WPVarnishPurgeCommonObjectsStatus' ), 99, 3 );
+		add_action( 'transition_post_status', array( $this, 'PurgePostStatus' ), 99, 3 );
+		add_action( 'transition_post_status', array( $this, 'PurgeCommonObjectsStatus' ), 99, 3 );
 		// When posts, pages, attachments are deleted
-		add_action( 'deleted_post', array( $this, 'WPVarnishPurgePost' ), 99 );
-		add_action( 'deleted_post', array( $this, 'WPVarnishPurgeCommonObjects' ), 99 );
+		add_action( 'deleted_post', array( $this, 'PurgePost' ), 99 );
+		add_action( 'deleted_post', array( $this, 'PurgeCommonObjects' ), 99 );
 
 		// When comments are made, edited or deleted
 		// See: http://codex.wordpress.org/Plugin_API/Action_Reference#Comment.2C_Ping.2C_and_Trackback_Actions
-		add_action( 'comment_post', array( $this, 'WPVarnishPurgePostComments' ), 99 );
-		add_action( 'edit_comment', array( $this, 'WPVarnishPurgePostComments' ), 99 );
-		add_action( 'deleted_comment', array( $this, 'WPVarnishPurgePostComments' ), 99 );
-		add_action( 'trashed_comment', array( $this, 'WPVarnishPurgePostComments' ), 99 );
-		add_action( 'pingback_post', array( $this, 'WPVarnishPurgePostComments' ), 99 );
-		add_action( 'trackback_post', array( $this, 'WPVarnishPurgePostComments' ), 99 );
-		add_action( 'wp_set_comment_status', array( $this, 'WPVarnishPurgePostCommentsStatus' ), 99 );
+		add_action( 'comment_post', array( $this, 'PurgePostComments' ), 99 );
+		add_action( 'edit_comment', array( $this, 'PurgePostComments' ), 99 );
+		add_action( 'deleted_comment', array( $this, 'PurgePostComments' ), 99 );
+		add_action( 'trashed_comment', array( $this, 'PurgePostComments' ), 99 );
+		add_action( 'pingback_post', array( $this, 'PurgePostComments' ), 99 );
+		add_action( 'trackback_post', array( $this, 'PurgePostComments' ), 99 );
+		add_action( 'wp_set_comment_status', array( $this, 'PurgePostCommentsStatus' ), 99 );
 
 		// When Theme is changed, Thanks dupuis
-		add_action( 'switch_theme', array( $this, 'WPVarnishPurgeAll' ), 99 );
+		add_action( 'switch_theme', array( $this, 'PurgeAll' ), 99 );
 
 		// When a new plugin is loaded
 		// this was added due to Issue #12, but, doesn't do what was intended
 		// commenting this out gets rid of the incessant purging.
-		//add_action('plugins_loaded',array($this, 'WPVarnishPurgeAll'), 99);
+		//add_action('plugins_loaded',array($this, 'PurgeAll'), 99);
 	}
 
-	public function WPVarnishLocalization() {
+	public function initLocalization() {
 		load_plugin_textdomain( 'wp-varnish', false, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
 	}
 
 	// WPVarnishPurgeAll - Using a regex, clear all blog cache. Use carefully.
-	public function WPVarnishPurgeAll() {
-		$this->WPVarnishPurgeObject( '/.*' );
+	public function PurgeAll() {
+		$this->PurgeObject( '/.*' );
 	}
 
 	// WPVarnishPurgeURL - Using a URL, clear the cache
-	public function WPVarnishPurgeURL( $wpv_purl ) {
+	public function PurgeURL( $wpv_purl ) {
 		$wpv_purl = preg_replace( '#^https?://[^/]+#i', '', $wpv_purl );
-		$this->WPVarnishPurgeObject( $wpv_purl );
+		$this->PurgeObject( $wpv_purl );
 	}
 
 	//wrapper on WPVarnishPurgeCommonObjects for transition_post_status
-	public function WPVarnishPurgeCommonObjectsStatus( $old, $new, $post ) {
+	public function PurgeCommonObjectsStatus( $old, $new, $post ) {
 		if ( $old != $new ) {
 			if ( $old == 'publish' || $new == 'publish' ) {
-				$this->WPVarnishPurgeCommonObjects( $post->ID );
+				$this->PurgeCommonObjects( $post->ID );
 			}
 		}
 	}
 
 	// Purge related objects
-	public function WPVarnishPurgeCommonObjects( $post_id ) {
+	public function PurgeCommonObjects( $post_id ) {
 
 		$post = get_post( $post_id );
 		// We need a post object in order to generate the archive URLs which are
@@ -193,16 +193,16 @@ class WPVarnish {
 		}
 
 		// Front page (latest posts OR static front page)
-		$this->WPVarnishPurgeObject( '/' . $archive_pattern );
+		$this->PurgeObject( '/' . $archive_pattern );
 
 		// Static Posts page (Added only if a static page used as the 'posts page')
 		if ( get_option( 'show_on_front', 'posts' ) == 'page' && intval( get_option( 'page_for_posts', 0 ) ) > 0 ) {
 			$posts_page_url = preg_replace( '#^https?://[^/]+#i', '', get_permalink( intval( get_option( 'page_for_posts' ) ) ) );
-			$this->WPVarnishPurgeObject( $posts_page_url . $archive_pattern );
+			$this->PurgeObject( $posts_page_url . $archive_pattern );
 		}
 
 		// Feeds
-		$this->WPVarnishPurgeObject( '/feed/(?:(atom|rdf)/)?$' );
+		$this->PurgeObject( '/feed/(?:(atom|rdf)/)?$' );
 
 		// Category, Tag, Author and Date Archives
 		// We get the URLs of the category and tag archives, only for
@@ -218,7 +218,7 @@ class WPVarnish {
 			} else {
 				$cat_slug_pattern = implode( '', $category_slugs );
 			}
-			$this->WPVarnishPurgeObject( '/' . get_option( 'category_base', 'category' ) . '/' . $cat_slug_pattern . '/' . $archive_pattern );
+			$this->PurgeObject( '/' . get_option( 'category_base', 'category' ) . '/' . $cat_slug_pattern . '/' . $archive_pattern );
 		}
 
 		// Tag Archive
@@ -232,12 +232,12 @@ class WPVarnish {
 			} else {
 				$tag_slug_pattern = implode( '', $tag_slugs );
 			}
-			$this->WPVarnishPurgeObject( '/' . get_option( 'tag_base', 'tag' ) . '/' . $tag_slug_pattern . '/' . $archive_pattern );
+			$this->PurgeObject( '/' . get_option( 'tag_base', 'tag' ) . '/' . $tag_slug_pattern . '/' . $archive_pattern );
 		}
 
 		// Author Archive
 		$author_archive_url = preg_replace( '#^https?://[^/]+#i', '', get_author_posts_url( $post->post_author ) );
-		$this->WPVarnishPurgeObject( $author_archive_url . $archive_pattern );
+		$this->PurgeObject( $author_archive_url . $archive_pattern );
 
 		// Date based archives
 		$archive_year = mysql2date( 'Y', $post->post_date );
@@ -245,26 +245,26 @@ class WPVarnish {
 		$archive_day = mysql2date( 'd', $post->post_date );
 		// Yearly Archive
 		$archive_year_url = preg_replace( '#^https?://[^/]+#i', '', get_year_link( $archive_year ) );
-		$this->WPVarnishPurgeObject( $archive_year_url . $archive_pattern );
+		$this->PurgeObject( $archive_year_url . $archive_pattern );
 		// Monthly Archive
 		$archive_month_url = preg_replace( '#^https?://[^/]+#i', '', get_month_link( $archive_year, $archive_month ) );
-		$this->WPVarnishPurgeObject( $archive_month_url . $archive_pattern );
+		$this->PurgeObject( $archive_month_url . $archive_pattern );
 		// Daily Archive
 		$archive_day_url = preg_replace( '#^https?://[^/]+#i', '', get_day_link( $archive_year, $archive_month, $archive_day ) );
-		$this->WPVarnishPurgeObject( $archive_day_url . $archive_pattern );
+		$this->PurgeObject( $archive_day_url . $archive_pattern );
 	}
 
 	//wrapper on WPVarnishPurgePost for transition_post_status
-	public function WPVarnishPurgePostStatus( $old, $new, $post ) {
+	public function PurgePostStatus( $old, $new, $post ) {
 		if ( $old != $new ) {
 			if ( $old == 'publish' || $new == 'publish' ) {
-				$this->WPVarnishPurgePost( $post->ID );
+				$this->PurgePost( $post->ID );
 			}
 		}
 	}
 
 	// WPVarnishPurgePost - Purges a post object
-	public function WPVarnishPurgePost( $post_id, $purge_comments = false ) {
+	public function PurgePost( $post_id, $purge_comments = false ) {
 
 		$post = get_post( $post_id );
 		// We need a post object, so we perform a few checks.
@@ -297,11 +297,11 @@ class WPVarnish {
 		// adding multipage support.
 		if ( $purge_comments === true ) {
 			// Post comments feed
-			$this->WPVarnishPurgeObject( $wpv_url . 'feed/(?:(atom|rdf)/)?$' );
+			$this->PurgeObject( $wpv_url . 'feed/(?:(atom|rdf)/)?$' );
 			// For paged comments
 			if ( intval( get_option( 'page_comments', 0 ) ) == 1 ) {
 				if ( get_option( $this->wpv_update_commentnavi_optname ) == 1 ) {
-					$this->WPVarnishPurgeObject( $wpv_url . 'comment-page-[\d]+/(?:#comments)?$' );
+					$this->PurgeObject( $wpv_url . 'comment-page-[\d]+/(?:#comments)?$' );
 				}
 			}
 		}
@@ -311,7 +311,7 @@ class WPVarnish {
 			$wpv_url .= '([\d]+/)?$';
 		}
 		// Purge object permalink
-		$this->WPVarnishPurgeObject( $wpv_url );
+		$this->PurgeObject( $wpv_url );
 
 		// For attachments, also purge the parent post, if it is published.
 		if ( get_post_type( $post ) == 'attachment' ) {
@@ -320,36 +320,36 @@ class WPVarnish {
 				if ( $parent_post->post_status == 'publish' ) {
 					// If the parent post is published, then purge its permalink
 					$wpv_url = preg_replace( '#^https?://[^/]+#i', '', get_permalink( $parent_post->ID ) );
-					$this->WPVarnishPurgeObject( $wpv_url );
+					$this->PurgeObject( $wpv_url );
 				}
 			}
 		}
 	}
 
 	// wrapper on WPVarnishPurgePostComments for comment status changes
-	public function WPVarnishPurgePostCommentsStatus( $comment_id, $new_comment_status ) {
-		$this->WPVarnishPurgePostComments( $comment_id );
+	public function PurgePostCommentsStatus( $comment_id, $new_comment_status ) {
+		$this->PurgePostComments( $comment_id );
 	}
 
 	// WPVarnishPurgePostComments - Purge all comments pages from a post
-	public function WPVarnishPurgePostComments( $comment_id ) {
+	public function PurgePostComments( $comment_id ) {
 		$comment = get_comment( $comment_id );
 		$post = get_post( $comment->comment_post_ID );
 
 		// Comments feed
-		$this->WPVarnishPurgeObject( '/comments/feed/(?:(atom|rdf)/)?$' );
+		$this->PurgeObject( '/comments/feed/(?:(atom|rdf)/)?$' );
 
 		// Purge post page, post comments feed and post comments pages
-		$this->WPVarnishPurgePost( $post, $purge_comments = true );
+		$this->PurgePost( $post, $purge_comments = true );
 
 		// Popup comments
 		// See:
 		// - http://codex.wordpress.org/Function_Reference/comments_popup_link
 		// - http://codex.wordpress.org/Template_Tags/comments_popup_script
-		$this->WPVarnishPurgeObject( '/.*comments_popup=' . $post->ID . '.*' );
+		$this->PurgeObject( '/.*comments_popup=' . $post->ID . '.*' );
 	}
 
-	public function WPVarnishPostID() {
+	public function PostID() {
 		global $posts, $comment_post_ID, $post_ID;
 
 		if ( $post_ID ) {
@@ -365,13 +365,13 @@ class WPVarnish {
 		return 0;
 	}
 
-	public function WPVarnishAdminMenu() {
+	public function AdminMenu() {
 		if ( !defined( 'VARNISH_HIDE_ADMINMENU' ) ) {
-			add_options_page( __( 'WP-Varnish Configuration', 'wp-varnish' ), 'WP-Varnish', 1, 'WPVarnish', array( $this, 'WPVarnishAdmin' ) );
+			add_options_page( __( 'WP-Varnish Configuration', 'wp-varnish' ), 'WP-Varnish', 1, '', array( $this, 'Admin' ) );
 		}
 	}
 
-	public function WPVarnishAdminBarLinks( $admin_bar ) {
+	public function AdminBarLinks( $admin_bar ) {
 		$admin_bar->add_menu( array(
 			'id' => 'wp-varnish',
 			'title' => __( 'Varnish', 'wp-varnish' ),
@@ -387,12 +387,12 @@ class WPVarnish {
 			'id' => 'clear-single-cache',
 			'parent' => 'wp-varnish',
 			'title' => 'Purge This Page',
-			'href' => wp_nonce_url( admin_url( 'admin.php?page=WPVarnish&amp;wpvarnish_clear_post&amp;noheader=true&amp;post_id=' . $this->WPVarnishPostID() ), 'wp-varnish' )
+			'href' => wp_nonce_url( admin_url( 'admin.php?page=WPVarnish&amp;wpvarnish_clear_post&amp;noheader=true&amp;post_id=' . $this->PostID() ), 'wp-varnish' )
 		) );
 	}
 
 	// WpVarnishAdmin - Draw the administration interface.
-	public function WPVarnishAdmin() {
+	public function Admin() {
 		global $varnish_servers, $varnish_version;
 		
 		if ( $_SERVER["REQUEST_METHOD"] == "GET" ) {
@@ -401,12 +401,12 @@ class WPVarnish {
 				$nonce = $_REQUEST['_wpnonce'];
 
 				if ( isset( $_GET['wpvarnish_clear_blog_cache'] ) && wp_verify_nonce( $nonce, 'wp-varnish' ) ) {
-					$this->WPVarnishPurgeAll();
+					$this->PurgeAll();
 					header( 'Location: ' . admin_url( 'admin.php?page=WPVarnish' ) );
 				}
 
 				if ( isset( $_GET['wpvarnish_clear_post'] ) && wp_verify_nonce( $nonce, 'wp-varnish' ) ) {
-					$this->WPVarnishPurgePost( $_GET['post_id'] );
+					$this->PurgePost( $_GET['post_id'] );
 					header( 'Location: ' . admin_url( 'admin.php?page=WPVarnish' ) );
 				}
 			}
@@ -460,11 +460,11 @@ class WPVarnish {
 				}
 
 				if ( isset( $_POST['wpvarnish_purge_url_submit'] ) ) {
-					$this->WPVarnishPurgeURL( $_POST["$this->wpvarnish_purge_url_optname"] );
+					$this->PurgeURL( $_POST["$this->wpvarnish_purge_url_optname"] );
 				}
 
 				if ( isset( $_POST['wpvarnish_clear_blog_cache'] ) )
-					$this->WPVarnishPurgeAll();
+					$this->PurgeAll();
 				?><div class="updated"><p><?php echo __( 'Settings Saved!', 'wp-varnish' ); ?></p></div><?php
 			} else {
 				?><div class="updated"><p><?php echo __( 'You do not have the privileges.', 'wp-varnish' ); ?></p></div><?php
@@ -557,7 +557,7 @@ class WPVarnish {
 
 	// WPVarnishPurgeObject - Takes a location as an argument and purges this object
 	// from the varnish cache.
-	public function WPVarnishPurgeObject( $wpv_url ) {
+	public function PurgeObject( $wpv_url ) {
 		global $varnish_servers, $varnish_version;
 
 		if ( is_array( $varnish_servers ) ) {
