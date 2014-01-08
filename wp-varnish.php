@@ -413,8 +413,8 @@ class WPVarnish {
 		} elseif ( $_SERVER["REQUEST_METHOD"] == "POST" ) {
 			if ( current_user_can( 'manage_options' ) ) {
 				if ( isset( $_POST['wpvarnish_admin'] ) ) {
-					cleanSubmittedData( 'wpvarnish_port', '/[^0-9]/' );
-					cleanSubmittedData( 'wpvarnish_addr', '/[^0-9.]/' );
+					self::cleanSubmittedData( 'wpvarnish_port', '/[^0-9]/' );
+					self::cleanSubmittedData( 'wpvarnish_addr', '/[^0-9.]/' );
 					if ( !empty( $_POST["$this->wpv_addr_optname"] ) ) {
 						$wpv_addr_optval = $_POST["$this->wpv_addr_optname"];
 						update_option( $this->wpv_addr_optname, $wpv_addr_optval );
@@ -641,17 +641,19 @@ class WPVarnish {
 
 		return $sha256;
 	}
+	
+	// Helper functions
+	public static function cleanSubmittedData( $varname, $regexp ) {
+	// FIXME: should do this in the admin console js, not here   
+	// normally I hate cleaning data and would rather validate before submit
+	// but, this fixes the problem in the cleanest method for now
+		foreach ( $_POST[$varname] as $key => $value ) {
+			$_POST[$varname][$key] = preg_replace( $regexp, '', $value );
+		}
+	}
+
 
 }
 
 $wpvarnish = new WPVarnish();
 
-// Helper functions
-function cleanSubmittedData( $varname, $regexp ) {
-// FIXME: should do this in the admin console js, not here   
-// normally I hate cleaning data and would rather validate before submit
-// but, this fixes the problem in the cleanest method for now
-	foreach ( $_POST[$varname] as $key => $value ) {
-		$_POST[$varname][$key] = preg_replace( $regexp, '', $value );
-	}
-}
