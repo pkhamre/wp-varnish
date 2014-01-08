@@ -468,13 +468,14 @@ class WPVarnish {
 		} elseif ( $_SERVER["REQUEST_METHOD"] == "POST" ) {
 			if ( current_user_can( 'manage_options' ) ) {
 				if ( isset( $_POST['wpvarnish_admin'] ) ) {
-					self::cleanSubmittedData( 'wpvarnish_port', '/[^0-9]/' );
-					self::cleanSubmittedData( 'wpvarnish_addr', '/[^0-9.]/' );
+					
 					if ( !empty( $_POST["wpvarnish_addr"] ) ) {
+						self::cleanSubmittedData( 'wpvarnish_addr', '/[^0-9.]/' );
 						update_option( "wpvarnish_addr", $_POST["wpvarnish_addr"] );
 					}
 
 					if ( !empty( $_POST["wpvarnish_port"] ) ) {
+						self::cleanSubmittedData( 'wpvarnish_port', '/[^0-9]/' );
 						update_option( "wpvarnish_port", $_POST["wpvarnish_port"] );
 					}
 
@@ -483,7 +484,7 @@ class WPVarnish {
 					}
 
 					if ( !empty( $_POST["wpvarnish_timeout"] ) ) {
-						update_option( "wpvarnish_timeout", $_POST["wpvarnish_timeout"] );
+						update_option( "wpvarnish_timeout", (int) $_POST["wpvarnish_timeout"] );
 					}
 
 					if ( !empty( $_POST["wpvarnish_update_pagenavi"] ) ) {
@@ -505,7 +506,7 @@ class WPVarnish {
 					}
 
 					if ( !empty( $_POST["wpvarnish_vversion"] ) ) {
-						update_option( "wpvarnish_vversion", $_POST["wpvarnish_vversion"] );
+						update_option( "wpvarnish_vversion", (int) $_POST["wpvarnish_vversion"] );
 					}
 				}
 
