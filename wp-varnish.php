@@ -430,12 +430,14 @@ class WPVarnish {
 			'title' => 'Purge All Cache',
 			'href' => wp_nonce_url( admin_url( 'admin.php?page=WPVarnish&amp;wpvarnish_clear_blog_cache&amp;noheader=true' ), 'wp-varnish' )
 		) );
-		$admin_bar->add_menu( array(
-			'id' => 'clear-single-cache',
-			'parent' => 'wp-varnish',
-			'title' => 'Purge This Page',
-			'href' => wp_nonce_url( admin_url( 'admin.php?page=WPVarnish&amp;wpvarnish_clear_post&amp;noheader=true&amp;post_id=' . $this->getPostID() ), 'wp-varnish' )
-		) );
+		if ( $this->getPostID() > 0 ) {
+			$admin_bar->add_menu( array(
+				'id' => 'clear-single-cache',
+				'parent' => 'wp-varnish',
+				'title' => 'Purge This Page',
+				'href' => wp_nonce_url( admin_url( 'admin.php?page=WPVarnish&amp;wpvarnish_clear_post&amp;noheader=true&amp;post_id=' . $this->getPostID() ), 'wp-varnish' )
+			) );
+		}
 	}
 
 	/**
