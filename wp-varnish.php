@@ -130,6 +130,10 @@ class WPVarnish {
 		if ( (get_option( "wpvarnish_vversion" ) == FALSE ) ) {
 			add_option( "wpvarnish_vversion", 2, '', 'yes' );
 		}
+		
+		if ( (get_option( "wpvarnish_purge_debug" ) == FALSE ) ) {
+			add_option( "wpvarnish_purge_debug", 0, '', 'yes' );
+		}
 	}
 
 	/**
@@ -514,6 +518,12 @@ class WPVarnish {
 					} else {
 						update_option( "wpvarnish_use_adminport", 0 );
 					}
+					
+					if ( !empty( $_POST["wpvarnish_purge_debug"] ) ) {
+						update_option( "wpvarnish_purge_debug", 1 );
+					} else {
+						update_option( "wpvarnish_purge_debug", 0 );
+					}
 
 					if ( !empty( $_POST["wpvarnish_vversion"] ) ) {
 						update_option( "wpvarnish_vversion", (int) $_POST["wpvarnish_vversion"] );
@@ -590,8 +600,10 @@ class WPVarnish {
 		}
 		?>
 				<p><?php echo __( "Timeout", 'wp-varnish' ); ?>: <input class="small-text" type="text" name="wpvarnish_timeout" value="<?php echo get_option( "wpvarnish_timeout" ); ?>" /> <?php echo __( "seconds", 'wp-varnish' ); ?></p>
-
+				
 				<p><input type="checkbox" name="wpvarnish_use_adminport" value="1" <?php checked( get_option( "wpvarnish_use_adminport" ), 1 ); ?>/> <?php echo __( "Use admin port instead of PURGE method.", 'wp-varnish' ); ?></p>
+
+				<p><input type="checkbox" name="wpvarnish_purge_debug" value="1" <?php checked( get_option( "wpvarnish_purge_debug" ), 1 ); ?>/> <?php echo __( "Enable log purge Varnish request to a file called debug-varnish.log ", 'wp-varnish' ); ?></p>
 
 				<p><input type="checkbox" name="wpvarnish_update_pagenavi" value="1" <?php checked( get_option( "wpvarnish_update_pagenavi" ), 1 ); ?>/> <?php echo __( "Also purge all page navigation (experimental, use carefully, it will include a bit more load on varnish servers.)", 'wp-varnish' ); ?></p>
 
@@ -655,6 +667,11 @@ class WPVarnish {
 		$wpv_host = preg_replace( $wpv_replace_wpurl, "$1", $wpv_wpurl );
 		$wpv_blogaddr = preg_replace( $wpv_replace_wpurl, "$2", $wpv_wpurl );
 		$wpv_url = $wpv_blogaddr . $wpv_url;
+		
+		// Start debug_log
+		$debug_log = sprintf( 'wp-varnish log: url = %s / host = %s on (', $wpv_url, $wpv_host);
+		
+		$j = 0;
 		for ( $i = 0; $i < count( $wpv_purgeaddr ); $i++ ) {
 			$varnish_sock = fsockopen( $wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, $wpv_timeout );
 			if ( !$varnish_sock ) {
@@ -688,7 +705,21 @@ class WPVarnish {
 			}
 			fwrite( $varnish_sock, $out );
 			fclose( $varnish_sock );
+			
+			$j++;
+			
+			// Complete debug log
+			$debug_log .= "$wpv_purgeaddr[$i]:$wpv_purgeport[$i], ";
 		}
+		
+		// Complete debug log
+		if ( $j == 0 ) {
+			$debug_log .= "no server)";
+		} else {
+			$debug_log = substr($debug_log, 0, -2).')';
+		}
+		
+		self::_logVarnish( $debug_log );
 	}
 
 	/**
@@ -763,6 +794,11 @@ class WPVarnish {
 		return false;
 	}
 
+	/**
+	 * Get base URL, get domain mapping if plugin exists
+	 * @param string $path
+	 * @return string
+	 */
 	public static function getBaseURL( $path = '' ) {
 		// check for domain mapping plugin by donncha
 		if ( function_exists( 'domain_mapping_siteurl' ) ) {
@@ -775,7 +811,24 @@ class WPVarnish {
 
 		return $base_url;
 	}
-
+	
+	/**
+	 * Log message into debug file if option or constant allow it !
+	 * @param string $message
+	 * @return boolean
+	 */
+	public static function _logVarnish( $message = '' ) {
+		if ( empty($message) ) {
+			return false;
+		}
+		
+		if( (int) get_option( "wpvarnish_purge_debug") == 1 || (defined( 'VARNISH_DEBUG' ) && constant( 'VARNISH_DEBUG' ) == true) ) {
+			error_log( date('Y-m-d G:i:s') . ' - ' . $message . PHP_EOL, 3, WP_CONTENT_DIR . '/debug-varnish.log' );
+			return true;
+		}
+		
+		return false;
+	}
 }
 
 add_action( 'plugins_loaded', '_init_wp_varnish' );
