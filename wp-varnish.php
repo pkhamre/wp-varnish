@@ -182,8 +182,7 @@ class WPVarnish {
 	 * @param string $wpv_purl
 	 */
 	public function PurgeURL( $wpv_purl ) {
-		$wpv_purl = preg_replace( '#^https?://[^/]+#i', '', $wpv_purl );
-		$this->PurgeObject( $wpv_purl );
+		$this->PurgeObject( self::cleanURL( $wpv_purl ) );
 	}
 
 	/**
@@ -231,64 +230,51 @@ class WPVarnish {
 		}
 
 		// Front page (latest posts OR static front page)
-		$this->PurgeObject( '/' . $archive_pattern );
+		$this->PurgeObject( self::cleanURL(home_url('/' . $archive_pattern)) );
 
 		// Static Posts page (Added only if a static page used as the 'posts page')
 		if ( get_option( 'show_on_front', 'posts' ) == 'page' && intval( get_option( 'page_for_posts', 0 ) ) > 0 ) {
-			$posts_page_url = preg_replace( '#^https?://[^/]+#i', '', get_permalink( intval( get_option( 'page_for_posts' ) ) ) );
+			$posts_page_url = self::cleanURL(get_permalink( intval( get_option( 'page_for_posts' ) ) ) );
 			$this->PurgeObject( $posts_page_url . $archive_pattern );
 		}
 
 		// Feeds
-		$this->PurgeObject( '/feed/(?:(atom|rdf)/)?$' );
+		$this->PurgeObject( self::cleanURL(home_url('/feed/(?:(atom|rdf)/)?$')) );
 
-		// Category, Tag, Author and Date Archives
-		// We get the URLs of the category and tag archives, only for
-		// those categories and tags which have been attached to the post.
-		// Category Archive
-		$category_slugs = array();
-		foreach ( get_the_category( $post->ID ) as $cat ) {
-			$category_slugs[] = $cat->slug;
-		}
-		if ( !empty( $category_slugs ) ) {
-			if ( count( $category_slugs ) > 1 ) {
-				$cat_slug_pattern = '(' . implode( '|', $category_slugs ) . ')';
-			} else {
-				$cat_slug_pattern = implode( '', $category_slugs );
+		// Terms, Category, Tag, Author and Date Archives
+		// We get the URLs of the terms of taxonomy and tag archives, only for
+		// those terms which have been attached to the post.
+
+		// Get taxos for current item
+		$taxonomies = get_object_taxonomies( $post->post_type, 'names' );
+
+		// Terms Archive
+		$post_terms = wp_get_object_terms( $post->ID, $taxonomies );
+		if ( is_array($post_terms) ) {
+			foreach ( $post_terms as $term ) {
+				$this->PurgeObject( trailingslashit(self::cleanURL(get_term_link( $term, $term->taxonomy))) . $archive_pattern );
 			}
-			$this->PurgeObject( '/' . get_option( 'category_base', 'category' ) . '/' . $cat_slug_pattern . '/' . $archive_pattern );
 		}
-
-		// Tag Archive
-		$tag_slugs = array();
-		foreach ( get_the_tags( $post->ID ) as $tag ) {
-			$tag_slugs[] = $tag->slug;
-		}
-		if ( !empty( $tag_slugs ) ) {
-			if ( count( $tag_slugs ) > 1 ) {
-				$tag_slug_pattern = '(' . implode( '|', $tag_slugs ) . ')';
-			} else {
-				$tag_slug_pattern = implode( '', $tag_slugs );
-			}
-			$this->PurgeObject( '/' . get_option( 'tag_base', 'tag' ) . '/' . $tag_slug_pattern . '/' . $archive_pattern );
-		}
-
+		
 		// Author Archive
-		$author_archive_url = preg_replace( '#^https?://[^/]+#i', '', get_author_posts_url( $post->post_author ) );
+		$author_archive_url = self::cleanURL( get_author_posts_url( $post->post_author ) );
 		$this->PurgeObject( $author_archive_url . $archive_pattern );
-
+		
 		// Date based archives
 		$archive_year = mysql2date( 'Y', $post->post_date );
 		$archive_month = mysql2date( 'm', $post->post_date );
 		$archive_day = mysql2date( 'd', $post->post_date );
+		
 		// Yearly Archive
-		$archive_year_url = preg_replace( '#^https?://[^/]+#i', '', get_year_link( $archive_year ) );
+		$archive_year_url = self::cleanURL( get_year_link( $archive_year ) );
 		$this->PurgeObject( $archive_year_url . $archive_pattern );
+		
 		// Monthly Archive
-		$archive_month_url = preg_replace( '#^https?://[^/]+#i', '', get_month_link( $archive_year, $archive_month ) );
+		$archive_month_url = self::cleanURL( get_month_link( $archive_year, $archive_month ) );
 		$this->PurgeObject( $archive_month_url . $archive_pattern );
+		
 		// Daily Archive
-		$archive_day_url = preg_replace( '#^https?://[^/]+#i', '', get_day_link( $archive_year, $archive_month, $archive_day ) );
+		$archive_day_url = self::cleanURL( get_day_link( $archive_year, $archive_month, $archive_day ) );
 		$this->PurgeObject( $archive_day_url . $archive_pattern );
 
 		return true;
@@ -342,9 +328,10 @@ class WPVarnish {
 		} else {
 			$wpv_url = get_permalink( $post->ID );
 		}
-
-		$wpv_url = preg_replace( '#^https?://[^/]+#i', '', $wpv_url );
-
+		
+		
+		$wpv_url = self::cleanURL( $wpv_url );
+		
 		// Purge post comments feed and comment pages, if requested, before
 		// adding multipage support.
 		if ( $purge_comments === true ) {
@@ -371,7 +358,7 @@ class WPVarnish {
 				$parent_post = get_post( $post->post_parent );
 				if ( $parent_post->post_status == 'publish' ) {
 					// If the parent post is published, then purge its permalink
-					$wpv_url = preg_replace( '#^https?://[^/]+#i', '', get_permalink( $parent_post->ID ) );
+					$wpv_url = self::cleanURL( get_permalink( $parent_post->ID ) );
 					$this->PurgeObject( $wpv_url );
 				}
 			}
@@ -829,6 +816,11 @@ class WPVarnish {
 		}
 		
 		return false;
+	}
+	
+	public static function cleanURL( $url ) {
+		$url = preg_replace( '#^https?://[^/]+#i', '', $url  );
+		return $url;
 	}
 }
 
