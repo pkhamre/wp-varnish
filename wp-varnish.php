@@ -154,6 +154,7 @@ class WPVarnish {
 				$this->PurgeAll();
 			} elseif ( $_GET['wpvarnish_action'] == 'clear_post' && isset($_GET['wpvarnish_post_id']) ) {
 				$this->PurgePost( (int) $_GET['wpvarnish_post_id'] );
+				$this->PurgeCommonObjects( (int) $_GET['wpvarnish_post_id'] );
 			}
 			
 			$destination = wp_get_referer();
