@@ -2,7 +2,7 @@
 /*
   Plugin Name: WordPress Varnish
   Plugin URI: http://github.com/pkhamre/wp-varnish
-  Version: 0.8
+  Version: 0.9.1
   Author: <a href="http://github.com/pkhamre/">Pål-Kristian Hamre</a>
   Description: A plugin for purging Varnish cache when content is published or edited.
 
