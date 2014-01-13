@@ -649,11 +649,16 @@ class WPVarnish {
 
 		$wpv_timeout = get_option( "wpvarnish_timeout" );
 		$wpv_use_adminport = get_option( "wpvarnish_use_adminport" );
-
+		
+		// Get current WP home url
 		$wpv_wpurl = self::getBaseURL();
+		
+		// Extract host and address from home URL
 		$wpv_replace_wpurl = '/^https?:\/\/([^\/]+)(.*)/i';
 		$wpv_host = preg_replace( $wpv_replace_wpurl, "$1", $wpv_wpurl );
 		$wpv_blogaddr = preg_replace( $wpv_replace_wpurl, "$2", $wpv_wpurl );
+		
+		// Concat start adresse with URL to purge
 		$wpv_url = $wpv_blogaddr . $wpv_url;
 		
 		// Start debug_log
@@ -788,11 +793,16 @@ class WPVarnish {
 	 * @return string
 	 */
 	public static function getBaseURL( $path = '' ) {
+		global $current_site;
+		
 		// check for domain mapping plugin by donncha
 		if ( function_exists( 'domain_mapping_siteurl' ) ) {
 			$base_url = domain_mapping_siteurl( 'NA' );
 			$base_url = untrailingslashit( $base_url );
 			$base_url .= $path;
+		} elseif ( is_multisite() && is_subdomain_install() == false ) {
+			$base_url = network_site_url( $path );
+			$base_url = str_replace($current_site->path, '', $base_url);
 		} else {
 			$base_url = home_url( $path );
 		}
