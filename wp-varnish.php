@@ -829,7 +829,10 @@ class WPVarnish {
 	}
 	
 	public static function cleanURL( $url ) {
-		$url = preg_replace( '#^https?://[^/]+#i', '', $url  );
+		$base_wpurl = self::getBaseURL();
+		
+		$url = str_replace( $base_wpurl, '', $url );
+		$url = preg_replace( '#^https?://[^/]+#i', '', $url );
 		return $url;
 	}
 }
