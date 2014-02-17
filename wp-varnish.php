@@ -2,7 +2,7 @@
 /*
   Plugin Name: WordPress Varnish
   Plugin URI: http://github.com/pkhamre/wp-varnish
-  Version: 0.9.2
+  Version: 0.9.2.1
   Author: <a href="http://github.com/pkhamre/">Pål-Kristian Hamre</a>
   Description: A plugin for purging Varnish cache when content is published or edited.
 
@@ -792,11 +792,11 @@ class WPVarnish {
 	 * @param string $path
 	 * @return string
 	 */
-	public static function getBaseURL( $path = '' ) {
+	public static function getBaseURL( $path = '', $original_url = false ) {
 		global $current_site;
 		
 		// check for domain mapping plugin by donncha
-		if ( function_exists( 'domain_mapping_siteurl' ) ) {
+		if ( function_exists( 'domain_mapping_siteurl' ) && $original_url == false ) {
 			$base_url = domain_mapping_siteurl( 'NA' );
 			$base_url = untrailingslashit( $base_url );
 			$base_url .= $path;
@@ -829,11 +829,12 @@ class WPVarnish {
 	}
 	
 	public static function cleanURL( $url ) {
-		$base_wpurl = self::getBaseURL();
-		
-		$url = str_replace( $base_wpurl, '', $url );
+		$original_url = $url;
+		$url = str_replace( self::getBaseURL(), '', $url );
+		$url = str_replace( self::getBaseURL('', true), '', $url );
 		$url = preg_replace( '#^https?://[^/]+#i', '', $url );
-		return $url;
+		
+		return apply_filters('wp_varnish_clean_url', $url, $original_url);
 	}
 }
 
