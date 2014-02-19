@@ -563,6 +563,9 @@ function WPVarnishPostID() {
   function WPVarnishPurgeObject($wpv_url) {
     global $varnish_servers;
 
+    // added this hook to enable other plugins do something when cache is purged
+    do_action( 'WPVarnishPurgeObject', $wpv_url );
+
     if (is_array($varnish_servers)) {
        foreach ($varnish_servers as $server) {
           list ($host, $port, $secret) = explode(':', $server);
