@@ -672,7 +672,7 @@ class WPVarnish {
 		$wpv_url = $wpv_blogaddr . $wpv_url;
 		
 		// Start debug_log
-		$debug_log = sprintf( 'wp-varnish log: url = %s / host = %s on (', $wpv_url, $wpv_host);
+		$debug_log = sprintf( 'wp-varnish log: url = %s ||| host = %s on (', $wpv_url, $wpv_host);
 		
 		$j = 0;
 		for ( $i = 0; $i < count( $wpv_purgeaddr ); $i++ ) {
