@@ -2,7 +2,7 @@
 /*
   Plugin Name: WordPress Varnish
   Plugin URI: http://github.com/pkhamre/wp-varnish
-  Version: 0.9.2.1
+  Version: 0.9.3
   Author: <a href="http://github.com/pkhamre/">Pål-Kristian Hamre</a>
   Description: A plugin for purging Varnish cache when content is published or edited.
 
@@ -174,6 +174,8 @@ class WPVarnish {
 	 */
 	public function PurgeAll() {
 		$this->PurgeObject( '/.*' );
+
+		do_action_ref_array('wp_varnish_purge_all', array(&$this));
 	}
 
 	/**
@@ -183,6 +185,8 @@ class WPVarnish {
 	 */
 	public function PurgeURL( $wpv_purl ) {
 		$this->PurgeObject( self::cleanURL( $wpv_purl ) );
+
+		do_action_ref_array('wp_varnish_purge_url', array(&$this, $wpv_purl));
 	}
 
 	/**
@@ -277,6 +281,8 @@ class WPVarnish {
 		$archive_day_url = self::cleanURL( get_day_link( $archive_year, $archive_month, $archive_day ) );
 		$this->PurgeObject( $archive_day_url . $archive_pattern );
 
+		do_action_ref_array('wp_varnish_purge_comment_objects', array(&$this, $post_id, $post));
+
 		return true;
 	}
 
@@ -364,6 +370,8 @@ class WPVarnish {
 			}
 		}
 
+		do_action_ref_array('wp_varnish_purge_post', array(&$this, $post_id, $post, $purge_comments));
+
 		return true;
 	}
 
@@ -397,6 +405,8 @@ class WPVarnish {
 		// - http://codex.wordpress.org/Function_Reference/comments_popup_link
 		// - http://codex.wordpress.org/Template_Tags/comments_popup_script
 		$this->PurgeObject( '/.*comments_popup=' . $post->ID . '.*' );
+
+		do_action_ref_array('wp_varnish_purge_post', array(&$this, $comment_id, $post));
 	}
 
 	/**
