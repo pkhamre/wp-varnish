@@ -338,6 +338,9 @@ class WPVarnish {
 		
 		$wpv_url = self::cleanURL( $wpv_url );
 		
+		// Purge classic url
+		$this->PurgeObject( $wpv_url );
+		
 		// Purge post comments feed and comment pages, if requested, before
 		// adding multipage support.
 		if ( $purge_comments === true ) {
@@ -355,6 +358,7 @@ class WPVarnish {
 		if ( in_array( get_post_type( $post ), array( 'post', 'page' ) ) ) {
 			$wpv_url .= '([\d]+/)?$';
 		}
+		
 		// Purge object permalink
 		$this->PurgeObject( $wpv_url );
 
