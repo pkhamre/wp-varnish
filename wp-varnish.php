@@ -598,6 +598,13 @@ function WPVarnishPostID() {
     $wpv_blogaddr = preg_replace($wpv_replace_wpurl, "$2", $wpv_wpurl);
     $wpv_url = $wpv_blogaddr . $wpv_url;
 
+    // allow custom purge functions and stop if they return false
+    if (function_exists($this->wpv_custom_purge_obj_f)) {
+        $f = $this->wpv_custom_purge_obj_f;
+        if (!$f($wpv_url, $wpv_host))
+            return;
+    }
+
     for ($i = 0; $i < count ($wpv_purgeaddr); $i++) {
       $varnish_sock = fsockopen($wpv_purgeaddr[$i], $wpv_purgeport[$i], $errno, $errstr, $wpv_timeout);
       if (!$varnish_sock) {
