@@ -114,14 +114,22 @@ sub vcl_hash {
 }
 
 sub vcl_fetch {
+  # Uncomment to make the default cache "time to live" is 24 hours, handy 
+  # but it may cache stale pages unless purged.
+  # By default Varnish will use the headers sent to it by Apache (the backend server)
+  # to figure out the correct TTL. 
+  set beresp.ttl = 24h;
+ 
   # make sure grace is at least 2 minutes
   if (beresp.grace < 2m) {
     set beresp.grace = 2m;
   }
+  
   # catch obvious reasons we can't cache
   if (beresp.http.Set-Cookie) {
     set beresp.ttl = 0s;
   }
+  
   # Varnish determined the object was not cacheable
   if (beresp.ttl <= 0s) {
     set beresp.http.X-Cacheable = "NO:Not Cacheable";
@@ -143,11 +151,13 @@ sub vcl_fetch {
   } else {
     set beresp.http.X-Cacheable = "YES";
   }
+  
   # Avoid caching error responses
   if (beresp.status == 404 || beresp.status >= 500) {
     set beresp.ttl   = 0s;
     set beresp.grace = 15s;
   }
+  
   # Deliver the content
   return(deliver);
 }
