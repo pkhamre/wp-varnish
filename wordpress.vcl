@@ -1,6 +1,9 @@
 backend default {
   .host = "127.0.0.1";
   .port = "8080";
+  .connect_timeout = 300s;
+  .first_byte_timeout = 300s;
+  .between_bytes_timeout = 300s;
 }
 
 acl purge {
