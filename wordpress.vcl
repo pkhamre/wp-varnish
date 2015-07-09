@@ -52,7 +52,7 @@ sub vcl_fetch {
 # This config was initially derived from the work of Donncha Ó Caoimh:
 # http://ocaoimh.ie/2011/08/09/speed-up-wordpress-with-apache-and-varnish/
 sub vcl_recv {
-  if (req.request == "BAN") {
+  if (req.request == "BAN" || req.request == "PURGE") {
     if(!client.ip ~ purge) {
       error 405 "Not allowed.";
     }
