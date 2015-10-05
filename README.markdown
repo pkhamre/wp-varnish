@@ -74,7 +74,7 @@ surfer's IP rather than the server's IP.
 Screenshots
 -----------
 
-1. Screenshot of the adminstration interface.
+1. Screenshot of the administration interface.
 
 Changelog
 ---------
