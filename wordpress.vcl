@@ -11,23 +11,6 @@ acl purge {
   "127.0.0.1";
 }
 
-# xforward.vcl -- X-Forwarded-For HTTP Headers
-# This should generally be loaded first to make sure that the headers
-# get set appropriately for all requests.  Note that when using this
-# you MUST NOT fall through to the VCL default handler for vcl_recv
-# since that will run the code again, resulting in the client.ip
-# being added twice.
-sub vcl_recv {
-  if (req.restarts == 0) {
-    if (req.http.X-Forwarded-For) {
-      set req.http.X-Forwarded-For =
-        req.http.X-Forwarded-For + ", " + client.ip;
-    } else {
-      set req.http.X-Forwarded-For = client.ip;
-    }
-  }
-}
-
 ### WordPress-specific config ###
 # This config was initially derived from the work of Donncha Ó Caoimh:
 # http://ocaoimh.ie/2011/08/09/speed-up-wordpress-with-apache-and-varnish/
