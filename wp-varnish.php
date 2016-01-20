@@ -30,6 +30,7 @@ class WPVarnish {
   public $wpv_timeout_optname;
   public $wpv_update_pagenavi_optname;
   public $wpv_update_commentnavi_optname;
+  public $wpv_purgeactions;
 
   function WPVarnish() {
     global $post;
@@ -43,6 +44,7 @@ class WPVarnish {
     $this->wpv_update_commentnavi_optname = "wpvarnish_update_commentnavi";
     $this->wpv_use_adminport_optname = "wpvarnish_use_adminport";
     $this->wpv_vversion_optname = "wpvarnish_vversion";
+    $this->wpv_purgeactions = array();
     $wpv_addr_optval = array ("127.0.0.1");
     $wpv_port_optval = array (80);
     $wpv_secret_optval = array ("");
@@ -140,6 +142,9 @@ class WPVarnish {
     // this was added due to Issue #12, but, doesn't do what was intended
     // commenting this out gets rid of the incessant purging.
     //add_action('plugins_loaded',array($this, 'WPVarnishPurgeAll'), 99);
+
+    // Do the actual purges only on shutdown to ensure a single URL is only purged once. IOK 2016-01-20
+    add_action('shutdown',array($this,'WPVarnishPurgeOnExit'),99);
   }
 
   function WPVarnishLocalization() {
@@ -560,7 +565,17 @@ function WPVarnishPostID() {
 
   // WPVarnishPurgeObject - Takes a location as an argument and purges this object
   // from the varnish cache.
-  function WPVarnishPurgeObject($wpv_url) {
+  // IOK 2015-12-21 changed to delay this to shutdown time.
+   function WPVarnishPurgeObject($wpv_url) {
+    $this->wpv_purgeactions[$wpv_url]=$wpv_url;
+  }
+  function WPVarnishPurgeOnExit() {
+   $purgeurls = array_keys($this->wpv_purgeactions);
+   foreach($purgeurls as $wpv_url) {
+    $this->WPVarnishActuallyPurgeObject($wpv_url);
+   }
+  }
+  function WPVarnishActuallyPurgeObject($wpv_url) {
     global $varnish_servers;
 
     // added this hook to enable other plugins do something when cache is purged
